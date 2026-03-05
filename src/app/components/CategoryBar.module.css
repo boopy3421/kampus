@@ -1,0 +1,46 @@
+.bar {
+  background: white;
+  border-bottom: 1px solid var(--gray-200);
+  padding: 0 clamp(16px, 4vw, 48px);
+}
+
+.inner {
+  max-width: 1400px;
+  margin: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  overflow-x: auto;
+  padding: 14px 0;
+  scrollbar-width: none;
+}
+.inner::-webkit-scrollbar { display: none; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.83rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.15s;
+  border: 1.5px solid var(--gray-200);
+  background: white;
+  color: var(--gray-600);
+}
+
+.chip:hover {
+  border-color: var(--navy);
+  color: var(--navy);
+  background: var(--blue-light);
+}
+
+.chip.active {
+  background: var(--navy);
+  color: white;
+  border-color: var(--navy);
+}
+
+.icon { font-size: 1rem; }

@@ -1,0 +1,195 @@
+import { useRef, useEffect, useState } from 'react'
+import { X, ShieldCheck, Info } from 'lucide-react'
+import { useEmailValidation } from '@/hooks/useEmailValidation'
+import { useAuth } from '@/hooks/useAuth'
+import type { ModalPanel } from '@/hooks/useModal'
+import styles from './AuthModal.module.css'
+
+interface AuthModalProps {
+  isOpen: boolean
+  panel: ModalPanel
+  onClose: () => void
+  onSwitchPanel: (panel: ModalPanel) => void
+}
+
+function EmailHint({ state }: { state: 'idle' | 'valid' | 'invalid' }) {
+  if (state === 'idle') return (
+    <p className={styles.hint}>
+      <Info size={12} /> Must be a @ciit.edu.ph address
+    </p>
+  )
+  if (state === 'valid') return (
+    <p className={`${styles.hint} ${styles.hintValid}`}>
+      <ShieldCheck size={12} /> Verified CIIT student email ✓
+    </p>
+  )
+  return (
+    <p className={`${styles.hint} ${styles.hintInvalid}`}>
+      <X size={12} /> Only @ciit.edu.ph emails are allowed
+    </p>
+  )
+}
+
+function CIITNote() {
+  return (
+    <div className={styles.ciitNote}>
+      <ShieldCheck size={14} style={{ flexShrink: 0, marginTop: 1 }} />
+      <span>
+        Kampus is exclusively for verified CIIT students.
+        Only <strong> @ciit.edu.ph </strong> email addresses are accepted.
+      </span>
+    </div>
+  )
+}
+
+function SignInPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void; onClose: () => void }) {
+  const email = useEmailValidation()
+  const [emailVal, setEmailVal] = useState('')
+  const { login } = useAuth()
+
+  const handleSubmit = () => {
+    if (!email.isCIITEmail(emailVal)) {
+      alert('Please enter a valid @ciit.edu.ph email address.')
+      return
+    }
+    login()
+    onClose()
+    alert('Welcome back! (Demo — backend coming soon.)')
+  }
+
+  return (
+    <>
+      <div className={styles.panelLogo}>Kampus<span>.</span></div>
+      <p className={styles.panelSub}>Sign in with your CIIT student email to access the marketplace.</p>
+      <h3 className={styles.panelTitle}>Welcome back 👋</h3>
+
+      <div className={styles.formGroup}>
+        <label>CIIT Student Email</label>
+        <input
+          className={`${styles.input} ${email.state === 'invalid' ? styles.inputError : ''}`}
+          type="email"
+          placeholder="yourname@ciit.edu.ph"
+          value={emailVal}
+          onChange={(e) => { setEmailVal(e.target.value); email.validate(e.target.value) }}
+        />
+        <EmailHint state={email.state} />
+      </div>
+
+      <div className={styles.formGroup}>
+        <label>Password</label>
+        <input className={styles.input} type="password" placeholder="••••••••" />
+      </div>
+
+      <button className={styles.submitBtn} onClick={handleSubmit}>Sign In</button>
+
+      <div className={styles.divider}>or</div>
+      <p className={styles.switchText}>
+        New to Kampus?{' '}
+        <a onClick={() => onSwitch('signup')}>Create an account</a>
+      </p>
+      <CIITNote />
+    </>
+  )
+}
+
+function SignUpPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void; onClose: () => void }) {
+  const email = useEmailValidation()
+  const [emailVal, setEmailVal] = useState('')
+  const { login } = useAuth()
+
+  const handleSubmit = () => {
+    if (!email.isCIITEmail(emailVal)) {
+      alert('Only @ciit.edu.ph email addresses can register on Kampus.')
+      return
+    }
+    login()
+    onClose()
+    alert('Account created! (Demo — backend coming soon.)')
+  }
+
+  return (
+    <>
+      <div className={styles.panelLogo}>Kampus<span>.</span></div>
+      <p className={styles.panelSub}>Join your fellow CIITizens on the campus marketplace.</p>
+      <h3 className={styles.panelTitle}>Create account 🎓</h3>
+
+      <div className={styles.formGroup}>
+        <label>Full Name</label>
+        <input className={styles.input} type="text" placeholder="Juan dela Cruz" />
+      </div>
+
+      <div className={styles.formGroup}>
+        <label>CIIT Student Email</label>
+        <input
+          className={`${styles.input} ${email.state === 'invalid' ? styles.inputError : ''}`}
+          type="email"
+          placeholder="yourname@ciit.edu.ph"
+          value={emailVal}
+          onChange={(e) => { setEmailVal(e.target.value); email.validate(e.target.value) }}
+        />
+        <EmailHint state={email.state} />
+      </div>
+
+      <div className={styles.formGroup}>
+        <label>Password</label>
+        <input className={styles.input} type="password" placeholder="Create a strong password" />
+      </div>
+
+      <button className={styles.submitBtn} onClick={handleSubmit}>Create Account</button>
+
+      <div className={styles.divider}>or</div>
+      <p className={styles.switchText}>
+        Already have an account?{' '}
+        <a onClick={() => onSwitch('signin')}>Sign in</a>
+      </p>
+      <CIITNote />
+    </>
+  )
+}
+
+function SellPanel({ onSwitch }: { onSwitch: (p: ModalPanel) => void }) {
+  return (
+    <>
+      <div className={styles.panelLogo}>Kampus<span>.</span></div>
+      <p className={styles.panelSub}>List something for sale on the campus marketplace.</p>
+      <h3 className={styles.panelTitle}>Post a listing ✏️</h3>
+      <div className={styles.sellGate}>
+        <p>You need to be signed in to post a listing.</p>
+        <a onClick={() => onSwitch('signin')}>Sign in to continue →</a>
+      </div>
+    </>
+  )
+}
+
+export function AuthModal({ isOpen, panel, onClose, onSwitchPanel }: AuthModalProps) {
+  const overlayRef = useRef<HTMLDivElement>(null)
+
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === overlayRef.current) onClose()
+  }
+
+  return (
+    <div
+      ref={overlayRef}
+      className={`${styles.overlay} ${isOpen ? styles.open : ''}`}
+      onClick={handleOverlayClick}
+    >
+      <div className={styles.modal}>
+        <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+          <X size={14} strokeWidth={2.5} />
+        </button>
+
+        {panel === 'signin' && <SignInPanel onSwitch={onSwitchPanel} onClose={onClose} />}
+        {panel === 'signup' && <SignUpPanel onSwitch={onSwitchPanel} onClose={onClose} />}
+        {panel === 'sell' && <SellPanel onSwitch={onSwitchPanel} />}
+      </div>
+    </div>
+  )
+}

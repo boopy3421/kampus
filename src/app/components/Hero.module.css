@@ -1,0 +1,85 @@
+.hero {
+  background: url(../assets/KAMPUS_BANNER.png) no-repeat center center;
+  background-size: cover;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.04) 0%, transparent 60%),
+    radial-gradient(circle at 80% 20%, rgba(240, 180, 41, 0.08) 0%, transparent 50%);
+}
+
+.pattern {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(45deg,
+      rgba(255, 255, 255, 0.015) 0,
+      rgba(255, 255, 255, 0.015) 1px,
+      transparent 0,
+      transparent 50%);
+  background-size: 32px 32px;
+}
+
+.inner {
+  max-width: 1400px;
+  margin: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.text h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+.text h2 em {
+  font-style: normal;
+  color: var(--gold);
+}
+
+.text p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.stats {
+  display: flex;
+  gap: 32px;
+  flex-shrink: 0;
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statNum {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--gold);
+  display: block;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 640px) {
+  .stats {
+    display: none;
+  }
+}

@@ -1,0 +1,106 @@
+@font-face {
+  font-family: 'Roca_Two';
+  src: url('./fonts/Roca_Two.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
+
+/* ─── DESIGN TOKENS ──────────────────────────────────────── */
+:root {
+  /* Colors */
+  --navy: #1a2f6e;
+  --navy-dark: #0f1d47;
+  --navy-light: #2a4299;
+  --blue-mid: #3b6cc7;
+  --blue-light: #e8edf8;
+  --gold: #4a7fd4;
+  --gold-light: #dce8f8;
+  --white: #ffffff;
+  --off-white: #f7f8fc;
+  --gray-100: #f0f2f8;
+  --gray-200: #dde2f0;
+  --gray-400: #8892b0;
+  --gray-600: #4a5568;
+  --text-dark: #0d1b3e;
+  --success: #10b981;
+  --danger: #ef4444;
+
+  /* Shape */
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-pill: 100px;
+
+  /* Shadows */
+  --shadow: 0 4px 24px rgba(26, 47, 110, 0.10);
+  --shadow-lg: 0 12px 40px rgba(26, 47, 110, 0.16);
+
+  /* Typography */
+  --font-display: 'Roca_Two', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+/* ─── BASE RESET ─────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--off-white);
+  color: var(--text-dark);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+input,
+textarea {
+  font-family: inherit;
+}
+
+/* ─── ANIMATIONS ─────────────────────────────────────────── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.4s ease both;
+}
