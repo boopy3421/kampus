@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useSearchParams, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { Navbar } from './components/Navbar'
 import { Hero } from './components/Hero'
@@ -15,7 +15,6 @@ import Messages from './pages/Messages/Messages'
 import { AuthProvider } from '@/hooks/useAuth'
 import { ListingsProvider, useListings } from './hooks/useListings'
 import { RequireAuth } from './components/RequireAuth'
-import styles from './App.module.css'
 
 // ── Home page ─────────────────────────────────────────────
 
@@ -54,13 +53,6 @@ function Home() {
   return (
     <>
       <Hero />
-      <div className={styles.homeActionsWrap}>
-        <div className={styles.homeActions}>
-          <Link to="/messages" className={styles.messagesLink}>
-            Messages
-          </Link>
-        </div>
-      </div>
       <CategoryBar active={activeCategory} onSelect={handleCategorySelect} />
       <ProductGrid products={allProducts} />
     </>
