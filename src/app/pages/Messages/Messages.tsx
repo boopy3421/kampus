@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, MessageSquare, SendHorizontal } from 'lucide-react'
+import { useListings } from '@/app/hooks/useListings'
+import { useAuth } from '@/hooks/useAuth'
 import styles from './Messages.module.css'
-
-type Sender = 'me' | 'seller'
 
 interface Message {
     id: number
-    sender: Sender
+    senderId: string
+    senderName: string
     text: string
     timestamp: number
 }
@@ -15,46 +16,31 @@ interface Message {
 interface Conversation {
     id: string
     seller: string
-    sellerId?: string
+    sellerId: string
+    buyerId: string
+    buyerName: string
     itemId: number
     itemTitle: string
     updatedAt: number
     messages: Message[]
 }
 
-const STORAGE_KEY = 'kampus_messages'
+const GLOBAL_STORAGE_KEY = 'kampus_messages_global'
 
-const STARTER_CONVERSATIONS: Conversation[] = [
-    {
-        id: 'Sarah K.::1',
-        seller: 'Sarah K.',
-        itemId: 1,
-        itemTitle: 'MacBook Pro 2021 - Excellent Condition',
-        updatedAt: Date.now() - 60 * 60 * 1000,
-        messages: [
-            {
-                id: Date.now() - 2,
-                sender: 'seller',
-                text: 'Hi! The MacBook is still available if you are interested.',
-                timestamp: Date.now() - 60 * 60 * 1000,
-            },
-            {
-                id: Date.now() - 1,
-                sender: 'me',
-                text: 'Great, can we meet on campus tomorrow afternoon?',
-                timestamp: Date.now() - 50 * 60 * 1000,
-            },
-        ],
-    },
-]
+const STARTER_CONVERSATIONS: Conversation[] = []
 
-function getConversationId(seller: string, itemId: number, sellerId?: string | null) {
-    return `${sellerId || seller}::${itemId}`
+function getConversationId(itemId: number, userA: string, userB: string) {
+    const [first, second] = [userA, userB].sort()
+    return `${itemId}::${first}::${second}`
 }
 
-function loadConversations() {
+function getUserKey(user: ReturnType<typeof useAuth>['user']) {
+    return user?.email || user?.id || user?.name || 'unknown'
+}
+
+function loadAllConversations() {
     try {
-        const raw = localStorage.getItem(STORAGE_KEY)
+        const raw = localStorage.getItem(GLOBAL_STORAGE_KEY)
         if (!raw) return STARTER_CONVERSATIONS
         const parsed = JSON.parse(raw) as Conversation[]
         if (!Array.isArray(parsed)) return STARTER_CONVERSATIONS
@@ -74,21 +60,49 @@ function formatTime(timestamp: number) {
 export default function Messages() {
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
-    const [conversations, setConversations] = useState<Conversation[]>(loadConversations)
-    const [activeConversationId, setActiveConversationId] = useState<string>(
-        () => loadConversations()[0]?.id ?? ''
-    )
+    const { user } = useAuth()
+    const { listings } = useListings()
+    const currentUserKey = useMemo(() => getUserKey(user), [user])
+    const [allConversations, setAllConversations] = useState<Conversation[]>(loadAllConversations)
+    const [activeConversationId, setActiveConversationId] = useState<string>('')
     const [draft, setDraft] = useState('')
 
+    const conversations = useMemo(
+        () =>
+            allConversations
+                .filter(
+                    (conversation) =>
+                        conversation.buyerId === currentUserKey || conversation.sellerId === currentUserKey
+                )
+                .sort((a, b) => b.updatedAt - a.updatedAt),
+        [allConversations, currentUserKey]
+    )
+
     useEffect(() => {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations))
-        } catch {
-            // Ignore storage write failures in private mode or limited environments.
-        }
+        setAllConversations(loadAllConversations())
+    }, [currentUserKey])
+
+    useEffect(() => {
+        setActiveConversationId((current) => {
+            if (conversations.some((conversation) => conversation.id === current)) {
+                return current
+            }
+            return conversations[0]?.id ?? ''
+        })
+        setDraft('')
     }, [conversations])
 
     useEffect(() => {
+        try {
+            localStorage.setItem(GLOBAL_STORAGE_KEY, JSON.stringify(allConversations))
+        } catch {
+            // Ignore storage write failures in private mode or limited environments.
+        }
+    }, [allConversations])
+
+    useEffect(() => {
+        if (!user) return
+
         const seller = searchParams.get('seller')
         const sellerId = searchParams.get('sellerId')
         const itemId = Number(searchParams.get('itemId'))
@@ -98,25 +112,32 @@ export default function Messages() {
             return
         }
 
-        const conversationId = getConversationId(seller, itemId, sellerId)
+        const sellerParticipantId = sellerId || seller
+        const buyerId = currentUserKey
+        const conversationId = getConversationId(itemId, buyerId, sellerParticipantId)
+        const autoMessage = `Hi! Is "${itemTitle}" still available?`
 
-        setConversations((prev) => {
+        setAllConversations((prev) => {
             const existing = prev.find((c) => c.id === conversationId)
             if (existing) return prev
 
+            const now = Date.now()
             const starter: Conversation = {
                 id: conversationId,
                 seller,
-                sellerId: sellerId || undefined,
+                sellerId: sellerParticipantId,
+                buyerId,
+                buyerName: user.name,
                 itemId,
                 itemTitle,
-                updatedAt: Date.now(),
+                updatedAt: now,
                 messages: [
                     {
-                        id: Date.now(),
-                        sender: 'me',
-                        text: `Hi! Is \"${itemTitle}\" still available?`,
-                        timestamp: Date.now(),
+                        id: now,
+                        senderId: buyerId,
+                        senderName: user.name,
+                        text: autoMessage,
+                        timestamp: now,
                     },
                 ],
             }
@@ -125,20 +146,24 @@ export default function Messages() {
 
         setActiveConversationId(conversationId)
         navigate('/messages', { replace: true })
-    }, [navigate, searchParams])
+    }, [currentUserKey, navigate, searchParams, user])
 
-    const sortedConversations = useMemo(
-        () => [...conversations].sort((a, b) => b.updatedAt - a.updatedAt),
-        [conversations]
-    )
+    const activeConversation = conversations.find((c) => c.id === activeConversationId)
+    const activeItem = activeConversation
+        ? listings.find((listing) => listing.id === activeConversation.itemId)
+        : undefined
 
-    const activeConversation = sortedConversations.find((c) => c.id === activeConversationId)
+    const counterpartLabel = activeConversation
+        ? activeConversation.sellerId === currentUserKey
+            ? activeConversation.buyerName
+            : activeConversation.seller
+        : ''
 
     const handleSend = () => {
         const nextText = draft.trim()
         if (!nextText || !activeConversationId) return
 
-        setConversations((prev) =>
+        setAllConversations((prev) =>
             prev.map((conversation) => {
                 if (conversation.id !== activeConversationId) return conversation
                 const now = Date.now()
@@ -149,7 +174,8 @@ export default function Messages() {
                         ...conversation.messages,
                         {
                             id: now,
-                            sender: 'me',
+                            senderId: currentUserKey,
+                            senderName: user?.name || 'Student',
                             text: nextText,
                             timestamp: now,
                         },
@@ -176,13 +202,17 @@ export default function Messages() {
                         <h1>Messages</h1>
                     </div>
 
-                    {sortedConversations.length === 0 ? (
+                    {conversations.length === 0 ? (
                         <p className={styles.emptyState}>No conversations yet.</p>
                     ) : (
                         <div className={styles.threadList}>
-                            {sortedConversations.map((conversation) => {
+                            {conversations.map((conversation) => {
                                 const lastMessage = conversation.messages[conversation.messages.length - 1]
                                 const active = conversation.id === activeConversationId
+                                const counterpart =
+                                    conversation.sellerId === currentUserKey
+                                        ? conversation.buyerName
+                                        : conversation.seller
 
                                 return (
                                     <button
@@ -190,7 +220,7 @@ export default function Messages() {
                                         className={`${styles.threadButton} ${active ? styles.threadButtonActive : ''}`}
                                         onClick={() => setActiveConversationId(conversation.id)}
                                     >
-                                        <p className={styles.threadSeller}>{conversation.seller}</p>
+                                        <p className={styles.threadSeller}>{counterpart}</p>
                                         <p className={styles.threadItem}>{conversation.itemTitle}</p>
                                         <p className={styles.threadPreview}>{lastMessage?.text || 'Start the chat'}</p>
                                     </button>
@@ -204,15 +234,42 @@ export default function Messages() {
                     {activeConversation ? (
                         <>
                             <header className={styles.chatHeader}>
-                                <p className={styles.chatSeller}>{activeConversation.seller}</p>
+                                <p className={styles.chatSeller}>{counterpartLabel}</p>
                                 <p className={styles.chatItem}>{activeConversation.itemTitle}</p>
                             </header>
+
+                            <div className={styles.itemCardWrap}>
+                                <Link to={`/item/${activeConversation.itemId}`} className={styles.itemCard}>
+                                    <div className={styles.itemCardImageWrap}>
+                                        {activeItem?.image ? (
+                                            <img
+                                                src={activeItem.image}
+                                                alt={activeConversation.itemTitle}
+                                                className={styles.itemCardImage}
+                                            />
+                                        ) : (
+                                            <div className={styles.itemCardImageFallback}>Listing</div>
+                                        )}
+                                    </div>
+                                    <div className={styles.itemCardBody}>
+                                        <p className={styles.itemCardLabel}>Listing</p>
+                                        <p className={styles.itemCardTitle}>{activeConversation.itemTitle}</p>
+                                        {activeItem?.price !== undefined && (
+                                            <p className={styles.itemCardPrice}>
+                                                ₱{activeItem.price.toLocaleString('en-PH')}
+                                            </p>
+                                        )}
+                                    </div>
+                                </Link>
+                            </div>
 
                             <div className={styles.messagesArea}>
                                 {activeConversation.messages.map((message) => (
                                     <div
                                         key={message.id}
-                                        className={`${styles.messageRow} ${message.sender === 'me' ? styles.messageMine : styles.messageSeller
+                                        className={`${styles.messageRow} ${message.senderId === currentUserKey
+                                                ? styles.messageMine
+                                                : styles.messageSeller
                                             }`}
                                     >
                                         <div className={styles.messageBubble}>
