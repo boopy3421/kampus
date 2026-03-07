@@ -12,6 +12,7 @@ import ItemView from './pages/ItemView/ItemView'
 import Profile from './pages/Profile/Profile'
 import CreateListing from './pages/CreateListing/CreateListing'
 import Messages from './pages/Messages/Messages'
+import Payment from './pages/Payment/Payment'
 import { AuthProvider } from '@/hooks/useAuth'
 import { ListingsProvider, useListings } from './hooks/useListings'
 import { RequireAuth } from './components/RequireAuth'
@@ -100,6 +101,14 @@ export default function App() {
               element={
                 <RequireAuth onUnauth={() => modal.open('signin')}>
                   <Messages />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/payment"
+              element={
+                <RequireAuth onUnauth={() => modal.open('signin')}>
+                  <Payment />
                 </RequireAuth>
               }
             />

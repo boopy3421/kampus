@@ -1,0 +1,250 @@
+.page {
+    max-width: 900px;
+    margin: auto;
+    padding: 0 clamp(16px, 4vw, 48px) 64px;
+}
+
+.topBar {
+    display: flex;
+    align-items: center;
+    padding: 20px 0 24px;
+}
+
+.backBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-400);
+    transition: color 0.15s;
+}
+
+.backBtn:hover {
+    color: var(--navy);
+}
+
+.card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    display: grid;
+    gap: 20px;
+}
+
+.header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
+    color: var(--text-dark);
+}
+
+.eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin-bottom: 6px;
+}
+
+.subtitle {
+    margin-top: 6px;
+    color: var(--gray-600);
+    font-size: 0.92rem;
+}
+
+.summary {
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    display: grid;
+    gap: 10px;
+}
+
+.summary p {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 0.9rem;
+}
+
+.summary span {
+    color: var(--gray-600);
+}
+
+.summary strong {
+    color: var(--text-dark);
+    text-align: right;
+}
+
+.methods {
+    display: grid;
+    gap: 10px;
+}
+
+.methodBtn {
+    width: 100%;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    background: white;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.methodBtn:hover {
+    border-color: var(--navy-light);
+    transform: translateY(-1px);
+}
+
+.methodBtnActive {
+    border-color: var(--navy);
+    box-shadow: 0 0 0 2px rgba(26, 47, 110, 0.12);
+}
+
+.methodIcon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--blue-light);
+    color: var(--navy);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.methodText {
+    display: grid;
+    gap: 3px;
+}
+
+.methodText strong {
+    font-size: 0.93rem;
+    color: var(--text-dark);
+}
+
+.methodText small {
+    color: var(--gray-600);
+    font-size: 0.8rem;
+}
+
+.footerNote {
+    border-top: 1px dashed var(--gray-200);
+    padding-top: 14px;
+    font-size: 0.9rem;
+    color: var(--gray-600);
+}
+
+.footerNote strong {
+    color: var(--navy);
+}
+
+.dropdownPanel {
+    border: 1px solid var(--gray-200);
+    background: #fafbff;
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    display: grid;
+    gap: 12px;
+}
+
+.dropdownTitle {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--navy);
+}
+
+.fieldGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.field,
+.fieldWide {
+    display: grid;
+    gap: 5px;
+    font-size: 0.8rem;
+    color: var(--gray-600);
+}
+
+.fieldWide {
+    grid-column: 1 / -1;
+}
+
+.field input,
+.field select,
+.fieldWide input {
+    border: 1px solid var(--gray-200);
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    outline: none;
+}
+
+.field input:focus,
+.field select:focus,
+.fieldWide input:focus {
+    border-color: var(--navy);
+    box-shadow: 0 0 0 2px rgba(26, 47, 110, 0.1);
+}
+
+.qrImage {
+    width: min(220px, 100%);
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid var(--gray-200);
+    background: #d9d9d9;
+}
+
+.actionRow {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.confirmBtn {
+    background: var(--navy);
+    color: white;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: var(--radius-pill);
+    transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.confirmBtn:hover {
+    background: var(--navy-light);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(26, 47, 110, 0.25);
+}
+
+@media (max-width: 560px) {
+    .card {
+        padding: 18px;
+    }
+
+    .summary p {
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .summary strong {
+        text-align: left;
+    }
+
+    .fieldGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .fieldWide {
+        grid-column: auto;
+    }
+}

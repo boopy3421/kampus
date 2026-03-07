@@ -330,6 +330,21 @@ export default function Messages() {
         setOfferInput('')
     }
 
+    const handleOpenPayment = (offerMessage: PriceOfferMessage) => {
+        if (!activeConversation) return
+
+        const params = new URLSearchParams({
+            amount: String(offerMessage.totalAmount),
+            itemId: String(activeConversation.itemId),
+            itemTitle: activeConversation.itemTitle,
+            seller: activeConversation.seller,
+            sellerId: activeConversation.sellerId,
+            conversationId: activeConversation.id,
+        })
+
+        navigate(`/payment?${params.toString()}`)
+    }
+
     return (
         <div className={styles.page}>
             <div className={styles.topBar}>
@@ -444,7 +459,7 @@ export default function Messages() {
                                                     message.senderId === activeConversation.sellerId ? (
                                                     <button
                                                         className={styles.payBtn}
-                                                        onClick={() => alert('Payment flow coming soon.')}
+                                                        onClick={() => handleOpenPayment(message)}
                                                     >
                                                         Pay
                                                     </button>
