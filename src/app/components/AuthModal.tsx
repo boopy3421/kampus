@@ -8,6 +8,7 @@ import styles from './AuthModal.module.css'
 interface MockAccount {
   email: string
   name: string
+  password: string
 }
 
 interface AuthModalProps {
@@ -74,6 +75,7 @@ function CIITNote() {
 function SignInPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void; onClose: () => void }) {
   const email = useEmailValidation()
   const [emailVal, setEmailVal] = useState('')
+  const [passwordVal, setPasswordVal] = useState('')
   const { login } = useAuth()
 
   const handleSubmit = () => {
@@ -84,6 +86,14 @@ function SignInPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void;
     const account = accountExists(emailVal)
     if (!account) {
       alert('Account not found. Please sign up first.')
+      return
+    }
+    if (!passwordVal.trim()) {
+      alert('Please enter your password.')
+      return
+    }
+    if (account.password !== passwordVal.trim()) {
+      alert('Incorrect password. Please try again.')
       return
     }
     login({
@@ -115,7 +125,13 @@ function SignInPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void;
 
       <div className={styles.formGroup}>
         <label>Password</label>
-        <input className={styles.input} type="password" placeholder="••••••••" />
+        <input
+          className={styles.input}
+          type="password"
+          placeholder="••••••••"
+          value={passwordVal}
+          onChange={e => setPasswordVal(e.target.value)}
+        />
       </div>
 
       <button className={styles.submitBtn} onClick={handleSubmit}>Sign In</button>
@@ -134,6 +150,7 @@ function SignUpPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void;
   const email = useEmailValidation()
   const [nameVal, setNameVal] = useState('')
   const [emailVal, setEmailVal] = useState('')
+  const [passwordVal, setPasswordVal] = useState('')
 
   const handleSubmit = () => {
     if (!nameVal.trim()) {
@@ -148,9 +165,14 @@ function SignUpPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void;
       alert('This email is already registered.')
       return
     }
+    if (!passwordVal.trim()) {
+      alert('Please enter a password.')
+      return
+    }
     saveMockAccount({
       email: emailVal,
       name: nameVal.trim(),
+      password: passwordVal.trim(),
     })
     alert('Account created! Please sign in with your email.')
     onSwitch('signin')
@@ -187,7 +209,13 @@ function SignUpPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void;
 
       <div className={styles.formGroup}>
         <label>Password</label>
-        <input className={styles.input} type="password" placeholder="Create a strong password" />
+        <input
+          className={styles.input}
+          type="password"
+          placeholder="Create a strong password"
+          value={passwordVal}
+          onChange={e => setPasswordVal(e.target.value)}
+        />
       </div>
 
       <button className={styles.submitBtn} onClick={handleSubmit}>Create Account</button>
