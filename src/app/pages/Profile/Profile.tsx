@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Package, Heart, Settings } from 'lucide-react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { ArrowLeft, Package, Heart, Settings, Wallet, Plus, X } from 'lucide-react'
 import { Trash } from 'lucide-react'
 import { ProductCard } from '@/app/components/ProductCard'
 import { useListings } from '@/app/hooks/useListings'
 import { useAuth } from '@/hooks/useAuth'
 import { useWishlist } from '@/hooks/useWishlist'
 import styles from './Profile.module.css'
+
+const WALLET_STORAGE_KEY = 'kampus_wallet_balances'
 
 interface MockAccount {
   email: string
@@ -39,7 +41,12 @@ type Tab = 'listings' | 'saved'
 export default function Profile() {
   const [selectMode, setSelectMode] = useState(false)
   const [selected, setSelected] = useState<number[]>([])
+  const [walletBalance, setWalletBalance] = useState(0)
+  const [isTopUpOpen, setIsTopUpOpen] = useState(false)
+  const [topUpAmount, setTopUpAmount] = useState('')
+  const [topUpError, setTopUpError] = useState('')
   const { user } = useAuth()
+  const navigate = useNavigate()
   const { profileKey } = useParams()
   const { listings, deleteListing } = useListings()
   const [activeTab, setActiveTab] = useState<Tab>('listings')
@@ -75,6 +82,40 @@ export default function Profile() {
       setSelected([])
     }
   }, [isOwnProfile])
+
+  useEffect(() => {
+    if (!isOwnProfile) return
+
+    try {
+      const raw = localStorage.getItem(WALLET_STORAGE_KEY)
+      const balances = raw ? (JSON.parse(raw) as Record<string, number>) : {}
+      const nextBalance = balances[user.email]
+      setWalletBalance(typeof nextBalance === 'number' && Number.isFinite(nextBalance) ? nextBalance : 0)
+    } catch {
+      setWalletBalance(0)
+    }
+  }, [isOwnProfile, user.email])
+
+  const handleTopUpPay = () => {
+    const amount = Number(topUpAmount)
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setTopUpError('Please enter an amount greater than 0.')
+      return
+    }
+
+    const params = new URLSearchParams({
+      mode: 'topup',
+      amount: String(amount),
+      itemTitle: 'K-Wallet Top-up',
+      seller: 'Kampus',
+      sellerId: 'kampus',
+    })
+
+    setTopUpError('')
+    setIsTopUpOpen(false)
+    setTopUpAmount('')
+    navigate(`/payment?${params.toString()}`)
+  }
 
   const profileData = {
     name: viewedName,
@@ -126,6 +167,38 @@ export default function Profile() {
           )}
         </div>
       </div>
+
+      {isOwnProfile && (
+        <section className={styles.walletCard}>
+          <div className={styles.walletInfo}>
+            <span className={styles.walletIconWrap}>
+              <Wallet size={16} />
+            </span>
+            <div>
+              <p className={styles.walletLabel}>K-Wallet</p>
+              <p className={styles.walletAmount}>₱{walletBalance.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            </div>
+          </div>
+
+          <div className={styles.walletActions}>
+            <button
+              type="button"
+              className={styles.topUpTrigger}
+              onClick={() => {
+                setTopUpError('')
+                setTopUpAmount('')
+                setIsTopUpOpen(true)
+              }}
+            >
+              <Plus size={14} />
+              Top up
+            </button>
+            <button type="button" className={styles.withdrawBtn}>
+              Withdraw
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* Tabs */}
       <div className={styles.tabs}>
@@ -243,6 +316,57 @@ export default function Profile() {
           </div>
         )}
       </div>
+
+      {isTopUpOpen && (
+        <div className={styles.topUpOverlay} onClick={() => setIsTopUpOpen(false)}>
+          <div className={styles.topUpModal} onClick={(event) => event.stopPropagation()}>
+            <div className={styles.topUpHeader}>
+              <h3>Top up K-Wallet</h3>
+              <button
+                type="button"
+                className={styles.topUpClose}
+                onClick={() => setIsTopUpOpen(false)}
+                aria-label="Close top-up modal"
+              >
+                <X size={14} />
+              </button>
+            </div>
+
+            <label className={styles.topUpField}>
+              Amount
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={topUpAmount}
+                onChange={(event) => {
+                  setTopUpAmount(event.target.value)
+                  if (topUpError) setTopUpError('')
+                }}
+                placeholder="Enter amount"
+              />
+            </label>
+
+            {topUpError && <p className={styles.topUpError}>{topUpError}</p>}
+
+            <div className={styles.topUpActions}>
+              <button
+                type="button"
+                className={styles.cancelBtn}
+                onClick={() => {
+                  setIsTopUpOpen(false)
+                  setTopUpError('')
+                }}
+              >
+                Cancel
+              </button>
+              <button type="button" className={styles.payBtn} onClick={handleTopUpPay}>
+                Pay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -11,6 +11,7 @@
   justify-content: space-between;
   padding: 20px 0 12px;
 }
+
 .backBtn {
   display: inline-flex;
   align-items: center;
@@ -20,7 +21,10 @@
   color: var(--gray-400);
   transition: color 0.15s;
 }
-.backBtn:hover { color: var(--navy); }
+
+.backBtn:hover {
+  color: var(--navy);
+}
 
 .settingsBtn {
   display: inline-flex;
@@ -34,7 +38,11 @@
   border-radius: var(--radius-pill);
   transition: all 0.15s;
 }
-.settingsBtn:hover { border-color: var(--navy); color: var(--navy); }
+
+.settingsBtn:hover {
+  border-color: var(--navy);
+  color: var(--navy);
+}
 
 /* ─── HEADER ──────────────────────────────────────────────── */
 .header {
@@ -49,10 +57,17 @@
 }
 
 @media (max-width: 680px) {
-  .header { flex-direction: column; align-items: center; text-align: center; }
+  .header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 }
 
-.avatarWrap { position: relative; flex-shrink: 0; }
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+}
 
 .avatar {
   width: 80px;
@@ -81,9 +96,14 @@
   padding: 2px 8px;
   transition: all 0.15s;
 }
-.editAvatarBtn:hover { border-color: var(--navy); }
 
-.info { flex: 1; }
+.editAvatarBtn:hover {
+  border-color: var(--navy);
+}
+
+.info {
+  flex: 1;
+}
 
 .nameRow {
   display: flex;
@@ -111,7 +131,11 @@
   padding: 4px 10px;
   border-radius: var(--radius-pill);
 }
-.ratingBadge span { color: var(--gray-400); font-weight: 400; }
+
+.ratingBadge span {
+  color: var(--gray-400);
+  font-weight: 400;
+}
 
 .metaRow {
   display: flex;
@@ -121,6 +145,7 @@
   color: var(--gray-400);
   margin-bottom: 6px;
 }
+
 .metaRow span {
   display: inline-flex;
   align-items: center;
@@ -131,6 +156,87 @@
   font-size: 0.82rem;
   color: var(--gray-400);
   margin-top: 4px;
+}
+
+.walletCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.walletInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.walletIconWrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--blue-light);
+  color: var(--navy);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.walletLabel {
+  font-size: 0.78rem;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.walletAmount {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--text-dark);
+}
+
+.topUpTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--navy);
+  color: white;
+  font-size: 0.84rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  padding: 8px 14px;
+  transition: background 0.15s;
+}
+
+.topUpTrigger:hover {
+  background: var(--navy-light);
+}
+
+.walletActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.withdrawBtn {
+  border: 1px solid var(--gray-200);
+  background: white;
+  color: var(--gray-600);
+  font-size: 0.84rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  padding: 8px 14px;
+}
+
+.withdrawBtn:hover {
+  border-color: var(--navy);
+  color: var(--navy);
 }
 
 /* ─── STATS ───────────────────────────────────────────────── */
@@ -144,7 +250,9 @@
   padding: 16px 24px;
 }
 
-.statItem { text-align: center; }
+.statItem {
+  text-align: center;
+}
 
 .statNum {
   display: block;
@@ -187,7 +295,11 @@
   margin-bottom: -1.5px;
   transition: all 0.15s;
 }
-.tab:hover { color: var(--navy); }
+
+.tab:hover {
+  color: var(--navy);
+}
+
 .tabActive {
   color: var(--navy);
   border-bottom-color: var(--navy);
@@ -217,7 +329,10 @@
   border-radius: var(--radius-pill);
   transition: all 0.15s;
 }
-.newListingBtn:hover { background: var(--navy-light); }
+
+.newListingBtn:hover {
+  background: var(--navy-light);
+}
 
 .grid {
   display: grid;
@@ -235,10 +350,124 @@
   align-items: center;
   gap: 12px;
 }
-.empty p { font-size: 0.95rem; }
+
+.empty p {
+  font-size: 0.95rem;
+}
+
 .empty a {
   color: var(--navy);
   font-weight: 600;
   font-size: 0.9rem;
 }
-.empty a:hover { text-decoration: underline; }
+
+.empty a:hover {
+  text-decoration: underline;
+}
+
+.topUpOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 18, 43, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 100;
+}
+
+.topUpModal {
+  width: min(420px, 100%);
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.topUpHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.topUpHeader h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text-dark);
+}
+
+.topUpClose {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--gray-200);
+  color: var(--gray-600);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.topUpField {
+  display: grid;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--gray-600);
+}
+
+.topUpField input {
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  background: var(--gray-100);
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  padding: 10px 12px;
+  outline: none;
+}
+
+.topUpField input:focus {
+  border-color: var(--navy);
+  background: white;
+}
+
+.topUpError {
+  font-size: 0.82rem;
+  color: var(--danger);
+}
+
+.topUpActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cancelBtn,
+.payBtn {
+  font-size: 0.84rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  padding: 8px 14px;
+}
+
+.cancelBtn {
+  border: 1px solid var(--gray-200);
+  color: var(--gray-600);
+  background: white;
+}
+
+.payBtn {
+  background: var(--navy);
+  color: white;
+}
+
+.payBtn:hover {
+  background: var(--navy-light);
+}
+
+@media (max-width: 680px) {
+  .walletCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

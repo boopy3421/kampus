@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, CreditCard, QrCode, Wallet } from 'lucide-react'
 import qrPlaceholder from '@/assets/qrph-placeholder.svg'
 import styles from './Payment.module.css'
 
-type PaymentMethod = 'cash' | 'kwallet' | 'card' | 'qrph'
+type PaymentMethod = 'cash' | 'card' | 'qrph'
 
 function formatMoney(amount: number) {
     return `₱${amount.toLocaleString('en-PH', {
@@ -26,12 +26,6 @@ const PAYMENT_METHODS: Array<{
             icon: Wallet,
         },
         {
-            id: 'kwallet',
-            label: 'K-Wallet',
-            subtitle: 'Use your Kampus wallet balance',
-            icon: Wallet,
-        },
-        {
             id: 'card',
             label: 'Debit / Credit Card',
             subtitle: 'Visa, Mastercard, and more',
@@ -47,29 +41,48 @@ const PAYMENT_METHODS: Array<{
 
 export default function Payment() {
     const [searchParams] = useSearchParams()
-    const itemTitle = searchParams.get('itemTitle') || 'Listing'
-    const seller = searchParams.get('seller') || 'Seller'
+    const isTopUpMode = searchParams.get('mode') === 'topup'
+    const backPath = isTopUpMode ? '/profile' : '/messages'
+    const backLabel = isTopUpMode ? 'Back to profile' : 'Back to messages'
+    const itemTitle = searchParams.get('itemTitle') || (isTopUpMode ? 'K-Wallet Top-up' : 'Listing')
+    const seller = isTopUpMode ? 'Kampus' : searchParams.get('seller') || 'Seller'
     const amountRaw = Number(searchParams.get('amount'))
     const amount = Number.isFinite(amountRaw) && amountRaw > 0 ? amountRaw : 0
 
-    const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('cash')
+    const availableMethods = useMemo(
+        () =>
+            isTopUpMode
+                ? PAYMENT_METHODS.filter((method) => method.id === 'card' || method.id === 'qrph')
+                : PAYMENT_METHODS,
+        [isTopUpMode]
+    )
+
+    const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(isTopUpMode ? 'card' : 'cash')
     const [cardType, setCardType] = useState('Visa')
     const [cardName, setCardName] = useState('')
     const [cardNumber, setCardNumber] = useState('')
     const [cardExpiry, setCardExpiry] = useState('')
     const [cardCvv, setCardCvv] = useState('')
 
+    useEffect(() => {
+        if (availableMethods.some((method) => method.id === selectedMethod)) return
+        const fallback = availableMethods[0]?.id
+        if (fallback) {
+            setSelectedMethod(fallback)
+        }
+    }, [availableMethods, selectedMethod])
+
     const selectedLabel = useMemo(
-        () => PAYMENT_METHODS.find((method) => method.id === selectedMethod)?.label || 'Cash',
-        [selectedMethod]
+        () => availableMethods.find((method) => method.id === selectedMethod)?.label || availableMethods[0]?.label || '',
+        [availableMethods, selectedMethod]
     )
 
     return (
         <div className={styles.page}>
             <div className={styles.topBar}>
-                <Link to="/messages" className={styles.backBtn}>
+                <Link to={backPath} className={styles.backBtn}>
                     <ArrowLeft size={16} />
-                    Back to messages
+                    {backLabel}
                 </Link>
             </div>
 
@@ -95,7 +108,7 @@ export default function Payment() {
                 </div>
 
                 <div className={styles.methods}>
-                    {PAYMENT_METHODS.map((method) => {
+                    {availableMethods.map((method) => {
                         const Icon = method.icon
                         const isActive = selectedMethod === method.id
                         return (
