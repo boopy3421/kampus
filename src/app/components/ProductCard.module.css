@@ -6,9 +6,14 @@
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
   cursor: pointer;
   animation: fadeUp 0.4s ease both;
+}
+
+.selected {
+  background: #ffeaea;
+  border: 1.5px solid #e53935;
 }
 
 .card:hover {

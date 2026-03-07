@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Package, Heart, Settings, Star, MapPin, Calendar } from 'lucide-react'
-import { PRODUCTS } from '@/data/products'
+import { ArrowLeft, Package, Heart, Settings } from 'lucide-react'
+import { Trash } from 'lucide-react'
 import { ProductCard } from '@/app/components/ProductCard'
-import { useWishlist } from '@/hooks/useWishlist'
+import { useListings } from '@/app/hooks/useListings'
 import { useAuth } from '@/hooks/useAuth'
+import { useWishlist } from '@/hooks/useWishlist'
 import styles from './Profile.module.css'
 
 // In a real app: if the profile id matches the logged-in user, show "own" view
@@ -22,12 +23,15 @@ const getInitials = (name: string) => {
 type Tab = 'listings' | 'saved'
 
 export default function Profile() {
+  const [selectMode, setSelectMode] = useState(false)
+  const [selected, setSelected] = useState<number[]>([])
   const { user } = useAuth()
+  const { listings, deleteListing } = useListings()
   const [activeTab, setActiveTab] = useState<Tab>('listings')
-  const { toggle, isLiked } = useWishlist()
+  const { isLiked, toggle, likedIds } = useWishlist()
 
-  const userListings = PRODUCTS.slice(0, 4)
-  const savedListings = PRODUCTS.slice(4, 8)
+  const userListings = listings.filter(l => l.seller === user?.name)
+  const savedListings = listings.filter(l => likedIds.includes(l.id))
 
   if (!user) {
     return <div className={styles.page}>Not logged in</div>
@@ -37,13 +41,6 @@ export default function Profile() {
     name: user.name,
     initials: getInitials(user.name),
     email: user.email,
-    course: 'BS Information Technology',
-    year: '3rd Year',
-    joined: 'August 2023',
-    rating: 4.8,
-    reviews: 12,
-    activeListings: 4,
-    soldItems: 9,
   }
 
   return (
@@ -75,38 +72,11 @@ export default function Profile() {
         <div className={styles.info}>
           <div className={styles.nameRow}>
             <h1 className={styles.name}>{profileData.name}</h1>
-            <div className={styles.ratingBadge}>
-              <Star size={13} fill="currentColor" />
-              {profileData.rating}
-              <span>({profileData.reviews} reviews)</span>
-            </div>
+            <span className={styles.profileStat}>{userListings.length} listing{userListings.length !== 1 ? 's' : ''}</span>
           </div>
-
-          <div className={styles.metaRow}>
-            <span><MapPin size={13} /> {profileData.course} · {profileData.year}</span>
-            <span><Calendar size={13} /> Joined {profileData.joined}</span>
-          </div>
-
           {IS_OWN_PROFILE && (
             <p className={styles.email}>{profileData.email}</p>
           )}
-        </div>
-
-        <div className={styles.stats}>
-          <div className={styles.statItem}>
-            <span className={styles.statNum}>{profileData.activeListings}</span>
-            <span className={styles.statLabel}>Active</span>
-          </div>
-          <div className={styles.statDivider} />
-          <div className={styles.statItem}>
-            <span className={styles.statNum}>{profileData.soldItems}</span>
-            <span className={styles.statLabel}>Sold</span>
-          </div>
-          <div className={styles.statDivider} />
-          <div className={styles.statItem}>
-            <span className={styles.statNum}>{profileData.rating}</span>
-            <span className={styles.statLabel}>Rating</span>
-          </div>
         </div>
       </div>
 
@@ -135,45 +105,94 @@ export default function Profile() {
         {activeTab === 'listings' && (
           <>
             {IS_OWN_PROFILE && (
-              <div className={styles.newListingBanner}>
-                <p>Got something to sell?</p>
-                <Link to="/create-listing" className={styles.newListingBtn}>+ Post a listing</Link>
+              <div className={styles.newListingBanner} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                  <p>Got something to sell?</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Link to="/create-listing" className={styles.newListingBtn}>+ Post a listing</Link>
+                    {!selectMode ? (
+                      <button
+                        className={styles.trashBtn}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fff', border: '1px solid #eee', borderRadius: 6, padding: '6px 10px', cursor: 'pointer' }}
+                        onClick={() => setSelectMode(true)}
+                      >
+                        <Trash size={18} color="#e53935" />
+                      </button>
+                    ) : (
+                      <button
+                        className={styles.deleteBtn}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#e53935', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 16px', cursor: 'pointer' }}
+                        onClick={() => {
+                          if (selected.length === 0) {
+                            setSelectMode(false)
+                            return
+                          }
+                          if (window.confirm('Are you sure you want to delete these items?')) {
+                            selected.forEach(id => deleteListing(id))
+                            setSelected([])
+                            setSelectMode(false)
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
             <div className={styles.grid}>
-              {userListings.map((p, i) => (
-                <ProductCard
-                  key={p.id}
-                  product={p}
-                  liked={isLiked(p.id)}
-                  onToggleLike={toggle}
-                  style={{ animationDelay: `${i * 0.05}s` }}
-                />
-              ))}
+              {userListings.length > 0 ? (
+                userListings.map((p, i) => (
+                  <div key={p.id} style={{ position: 'relative' }}>
+                    <ProductCard
+                      product={p}
+                      liked={isLiked(p.id)}
+                      onToggleLike={toggle}
+                      style={{ animationDelay: `${i * 0.05}s` }}
+                      selectable={selectMode}
+                      selected={selected.includes(p.id)}
+                      onSelect={() => {
+                        if (selected.includes(p.id)) {
+                          setSelected(prev => prev.filter(id => id !== p.id))
+                        } else {
+                          setSelected(prev => [...prev, p.id])
+                        }
+                      }}
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className={styles.empty}>
+                  <Package size={32} strokeWidth={1.5} />
+                  <p>No listings yet.</p>
+                  <Link to="/create-listing">Post a listing</Link>
+                </div>
+              )}
             </div>
           </>
         )}
 
         {activeTab === 'saved' && (
           <div className={styles.grid}>
-            {savedListings.length > 0
-              ? savedListings.map((p, i) => (
-                <ProductCard
-                  key={p.id}
-                  product={p}
-                  liked={isLiked(p.id)}
-                  onToggleLike={toggle}
-                  style={{ animationDelay: `${i * 0.05}s` }}
-                />
-              ))
-              : (
-                <div className={styles.empty}>
-                  <Heart size={32} strokeWidth={1.5} />
-                  <p>No saved listings yet.</p>
-                  <Link to="/">Browse listings</Link>
+            {savedListings.length > 0 ? (
+              savedListings.map((p, i) => (
+                <div key={p.id} style={{ position: 'relative' }}>
+                  <ProductCard
+                    product={p}
+                    liked={isLiked(p.id)}
+                    onToggleLike={toggle}
+                    style={{ animationDelay: `${i * 0.05}s` }}
+                  />
                 </div>
-              )
-            }
+              ))
+            ) : (
+              <div className={styles.empty}>
+                <Heart size={32} strokeWidth={1.5} />
+                <p>No saved listings yet.</p>
+                <Link to="/">Browse listings</Link>
+              </div>
+            )}
           </div>
         )}
       </div>

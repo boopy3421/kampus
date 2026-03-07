@@ -11,6 +11,7 @@ import ItemView from './pages/ItemView/ItemView'
 import Profile from './pages/Profile/Profile'
 import CreateListing from './pages/CreateListing/CreateListing'
 import { AuthProvider } from '@/hooks/useAuth'
+import { ListingsProvider, useListings } from './hooks/useListings'
 import { RequireAuth } from './components/RequireAuth'
 
 // ── Home page ─────────────────────────────────────────────
@@ -20,25 +21,23 @@ function Home() {
   const activeCategory = searchParams.get('category') || 'All'
   const searchQuery = searchParams.get('search') || ''
 
-  let filteredProducts = PRODUCTS
-
+  const { listings } = useListings()
+  let allProducts = [...PRODUCTS, ...listings]
   // Filter by category
   if (activeCategory !== 'All') {
-    filteredProducts = filteredProducts.filter((p) => p.category === activeCategory)
+    allProducts = allProducts.filter((p) => p.category === activeCategory)
   }
-
   // Filter by search query
   if (searchQuery) {
-    filteredProducts = filteredProducts.filter((p) =>
+    allProducts = allProducts.filter((p) =>
       p.title.toLowerCase().includes(searchQuery.toLowerCase())
     )
   }
-
   return (
     <>
       <Hero />
       <CategoryBar active={activeCategory} />
-      <ProductGrid products={filteredProducts} />
+      <ProductGrid products={allProducts} />
     </>
   )
 }
@@ -49,39 +48,38 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Navbar onOpenModal={modal.open} />
-
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/item/:id" element={<ItemView />} />
-          <Route
-            path="/profile"
-            element={
-              <RequireAuth onUnauth={() => modal.open('signin')}>
-                <Profile />
-              </RequireAuth>
-            }
+      <ListingsProvider>
+        <BrowserRouter>
+          <Navbar onOpenModal={modal.open} />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/item/:id" element={<ItemView />} />
+            <Route
+              path="/profile"
+              element={
+                <RequireAuth onUnauth={() => modal.open('signin')}>
+                  <Profile />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/create-listing"
+              element={
+                <RequireAuth onUnauth={() => modal.open('signin')}>
+                  <CreateListing />
+                </RequireAuth>
+              }
+            />
+          </Routes>
+          <Footer />
+          <AuthModal
+            isOpen={modal.isOpen}
+            panel={modal.panel}
+            onClose={modal.close}
+            onSwitchPanel={modal.setPanel}
           />
-          <Route
-            path="/create-listing"
-            element={
-              <RequireAuth onUnauth={() => modal.open('signin')}>
-                <CreateListing />
-              </RequireAuth>
-            }
-          />
-        </Routes>
-
-        <Footer />
-
-        <AuthModal
-          isOpen={modal.isOpen}
-          panel={modal.panel}
-          onClose={modal.close}
-          onSwitchPanel={modal.setPanel}
-        />
-      </BrowserRouter>
+        </BrowserRouter>
+      </ListingsProvider>
     </AuthProvider>
   )
 }

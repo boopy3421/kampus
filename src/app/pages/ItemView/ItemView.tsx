@@ -2,19 +2,43 @@ import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, Heart, Share2, ShieldCheck, MapPin, Tag, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { PRODUCTS } from '@/data/products'
+import { useListings } from '@/app/hooks/useListings'
 import { ProductCard } from '@/app/components/ProductCard'
 import { useWishlist } from '@/hooks/useWishlist'
+import { useAuth } from '@/hooks/useAuth'
 import styles from './ItemView.module.css'
 
 export default function ItemView() {
+  const { user } = useAuth()
+  // Helper for posted time
+  function getPostedTime(ts: number) {
+    const now = Date.now()
+    const diff = now - ts
+    const mins = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+    if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`
+    if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`
+    if (mins > 0) return `${mins} minute${mins > 1 ? 's' : ''} ago`
+    return 'just now'
+  }
   const { id } = useParams()
-  const product = PRODUCTS.find(p => p.id === Number(id)) ?? PRODUCTS[0]
-  const similar = PRODUCTS.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4)
+  const { listings } = useListings()
+  const allProducts = [...PRODUCTS, ...listings]
+  const product = allProducts.find(p => p.id === Number(id)) ?? allProducts[0]
+  const similar = allProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4)
+  const sellerListings = allProducts.filter(l => l.seller === product.seller)
 
   const { toggle, isLiked } = useWishlist()
   const [activeImg, setActiveImg] = useState(0)
 
-  const images = [product.image, product.image, product.image]
+  // Support multiple images if available, otherwise show single image
+  let images: string[] = []
+  if (Array.isArray(product.photos) && product.photos.length > 0) {
+    images = product.photos
+  } else if (product.image) {
+    images = [product.image]
+  }
 
   return (
     <div className={styles.page}>
@@ -77,10 +101,13 @@ export default function ItemView() {
 
           {/* Actions */}
           <div className={styles.actions}>
-            <button className={styles.btnContact}>
-              <MessageCircle size={17} />
-              Message Seller
-            </button>
+            {/* Only show 'Message Seller' if logged-in user is NOT the seller */}
+            {user && user.name !== product.seller && (
+              <button className={styles.btnContact}>
+                <MessageCircle size={17} />
+                Message Seller
+              </button>
+            )}
             <button
               className={`${styles.btnWish} ${isLiked(product.id) ? styles.btnWishActive : ''}`}
               onClick={() => toggle(product.id)}
@@ -95,11 +122,7 @@ export default function ItemView() {
           {/* Description */}
           <div className={styles.section}>
             <h3>Description</h3>
-            <p>
-              This is a great item in {product.condition ?? 'good'} condition. Perfect for CIIT students
-              looking for a quality deal on campus. Item has been well maintained and is ready for pickup.
-              Feel free to message for more photos or to ask any questions before buying.
-            </p>
+            <p>{product.description || ''}</p>
           </div>
 
           {/* Details */}
@@ -120,7 +143,7 @@ export default function ItemView() {
               </div>
               <div className={styles.detailItem}>
                 <span className={styles.detailLabel}>Posted</span>
-                <span className={styles.detailValue}>2 days ago</span>
+                <span className={styles.detailValue}>{product.id > 1000000000000 ? getPostedTime(product.id) : 'N/A'}</span>
               </div>
             </div>
           </div>
@@ -141,7 +164,7 @@ export default function ItemView() {
             </div>
             <div className={styles.sellerInfo}>
               <p className={styles.sellerName}>{product.seller}</p>
-              <p className={styles.sellerMeta}>CIIT Student · 4 active listings</p>
+              <p className={styles.sellerMeta}>CIIT Student · {sellerListings.length} active listing{sellerListings.length !== 1 ? 's' : ''}</p>
             </div>
             <Link to="/profile" className={styles.sellerViewBtn}>View Profile</Link>
           </div>

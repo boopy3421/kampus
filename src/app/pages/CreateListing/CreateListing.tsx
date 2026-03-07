@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { useListings } from '@/app/hooks/useListings'
+import { useAuth } from '@/hooks/useAuth'
+import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Upload, X, Plus, Info } from 'lucide-react'
 import { CATEGORIES } from '@/data/products'
 import styles from './CreateListing.module.css'
@@ -13,19 +16,22 @@ const MEETUP_OPTIONS = [
 ]
 
 export default function CreateListing() {
-  const [photos, setPhotos]       = useState<string[]>([])
-  const [title, setTitle]         = useState('')
-  const [price, setPrice]         = useState('')
-  const [category, setCategory]   = useState('')
+  const { addListing } = useListings()
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const [photos, setPhotos] = useState<string[]>([])
+  const [title, setTitle] = useState('')
+  const [price, setPrice] = useState('')
+  const [category, setCategory] = useState('')
   const [condition, setCondition] = useState('')
-  const [description, setDesc]    = useState('')
-  const [meetup, setMeetup]       = useState('')
-  const [tags, setTags]           = useState<string[]>([])
-  const [tagInput, setTagInput]   = useState('')
+  const [description, setDesc] = useState('')
+  const [meetup, setMeetup] = useState('')
+  const [tags, setTags] = useState<string[]>([])
+  const [tagInput, setTagInput] = useState('')
 
   const handlePhotoAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
-    const urls  = files.map(f => URL.createObjectURL(f))
+    const urls = files.map(f => URL.createObjectURL(f))
     setPhotos(prev => [...prev, ...urls].slice(0, 5))
   }
 
@@ -45,7 +51,23 @@ export default function CreateListing() {
       alert('Please fill in all required fields.')
       return
     }
-    alert('Listing posted! (Demo — backend coming soon.)')
+    if (!user) {
+      alert('You must be logged in to post a listing.')
+      return
+    }
+    const newListing = {
+      id: Date.now(),
+      title,
+      price: Number(price),
+      image: photos[0] || '',
+      category,
+      seller: user.name,
+      condition,
+      // Optionally add more fields: description, meetup, tags
+    }
+    addListing(newListing)
+    alert('Listing posted!')
+    navigate('/')
   }
 
   const isValid = title && price && category && condition
