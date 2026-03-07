@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useSearchParams } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useSearchParams, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { Navbar } from './components/Navbar'
 import { Hero } from './components/Hero'
@@ -11,9 +11,11 @@ import { PRODUCTS } from '@/data/products'
 import ItemView from './pages/ItemView/ItemView'
 import Profile from './pages/Profile/Profile'
 import CreateListing from './pages/CreateListing/CreateListing'
+import Messages from './pages/Messages/Messages'
 import { AuthProvider } from '@/hooks/useAuth'
 import { ListingsProvider, useListings } from './hooks/useListings'
 import { RequireAuth } from './components/RequireAuth'
+import styles from './App.module.css'
 
 // ── Home page ─────────────────────────────────────────────
 
@@ -52,6 +54,13 @@ function Home() {
   return (
     <>
       <Hero />
+      <div className={styles.homeActionsWrap}>
+        <div className={styles.homeActions}>
+          <Link to="/messages" className={styles.messagesLink}>
+            Messages
+          </Link>
+        </div>
+      </div>
       <CategoryBar active={activeCategory} onSelect={handleCategorySelect} />
       <ProductGrid products={allProducts} />
     </>
@@ -91,6 +100,14 @@ export default function App() {
               element={
                 <RequireAuth onUnauth={() => modal.open('signin')}>
                   <CreateListing />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/messages"
+              element={
+                <RequireAuth onUnauth={() => modal.open('signin')}>
+                  <Messages />
                 </RequireAuth>
               }
             />

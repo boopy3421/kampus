@@ -9,7 +9,12 @@ interface MockAccount {
   email: string
   name: string
   password: string
+  year: '1st Year' | '2nd Year' | '3rd Year' | '4th Year'
+  course: 'BSCS' | 'BSIT' | 'BMMA' | 'BSEMC' | 'ENTREP'
 }
+
+const YEAR_OPTIONS: MockAccount['year'][] = ['1st Year', '2nd Year', '3rd Year', '4th Year']
+const COURSE_OPTIONS: MockAccount['course'][] = ['BSCS', 'BSIT', 'BMMA', 'BSEMC', 'ENTREP']
 
 interface AuthModalProps {
   isOpen: boolean
@@ -100,6 +105,8 @@ function SignInPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void;
       id: emailVal,
       name: account.name,
       email: emailVal,
+      year: account.year,
+      course: account.course,
     })
     onClose()
     alert('Welcome back! (Demo — backend coming soon.)')
@@ -151,6 +158,8 @@ function SignUpPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void;
   const [nameVal, setNameVal] = useState('')
   const [emailVal, setEmailVal] = useState('')
   const [passwordVal, setPasswordVal] = useState('')
+  const [yearVal, setYearVal] = useState('')
+  const [courseVal, setCourseVal] = useState('')
 
   const handleSubmit = () => {
     if (!nameVal.trim()) {
@@ -169,10 +178,20 @@ function SignUpPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void;
       alert('Please enter a password.')
       return
     }
+    if (!yearVal) {
+      alert('Please select your year level.')
+      return
+    }
+    if (!courseVal) {
+      alert('Please select your course.')
+      return
+    }
     saveMockAccount({
       email: emailVal,
       name: nameVal.trim(),
       password: passwordVal.trim(),
+      year: yearVal as MockAccount['year'],
+      course: courseVal as MockAccount['course'],
     })
     alert('Account created! Please sign in with your email.')
     onSwitch('signin')
@@ -216,6 +235,34 @@ function SignUpPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void;
           value={passwordVal}
           onChange={e => setPasswordVal(e.target.value)}
         />
+      </div>
+
+      <div className={styles.formGroup}>
+        <label>Year Level</label>
+        <select
+          className={styles.input}
+          value={yearVal}
+          onChange={(e) => setYearVal(e.target.value)}
+        >
+          <option value="">Select your year</option>
+          {YEAR_OPTIONS.map((year) => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className={styles.formGroup}>
+        <label>Course</label>
+        <select
+          className={styles.input}
+          value={courseVal}
+          onChange={(e) => setCourseVal(e.target.value)}
+        >
+          <option value="">Select your course</option>
+          {COURSE_OPTIONS.map((course) => (
+            <option key={course} value={course}>{course}</option>
+          ))}
+        </select>
       </div>
 
       <button className={styles.submitBtn} onClick={handleSubmit}>Create Account</button>

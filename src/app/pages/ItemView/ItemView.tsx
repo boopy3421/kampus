@@ -46,6 +46,19 @@ export default function ItemView() {
   const { toggle, isLiked } = useWishlist()
   const [activeImg, setActiveImg] = useState(0)
 
+  const isOwnListing =
+    !!user &&
+    (product.sellerId
+      ? user.id === product.sellerId || user.email === product.sellerId
+      : user.name === product.seller)
+
+  const messageParams = new URLSearchParams({
+    seller: product.seller,
+    sellerId: product.sellerId ?? '',
+    itemId: String(product.id),
+    itemTitle: product.title,
+  })
+
   // Support multiple images if available, otherwise show single image
   let images: string[] = []
   if (Array.isArray(product.photos) && product.photos.length > 0) {
@@ -116,11 +129,11 @@ export default function ItemView() {
           {/* Actions */}
           <div className={styles.actions}>
             {/* Only show 'Message Seller' if logged-in user is NOT the seller */}
-            {user && user.name !== product.seller && (
-              <button className={styles.btnContact}>
+            {user && !isOwnListing && (
+              <Link to={`/messages?${messageParams.toString()}`} className={styles.btnContact}>
                 <MessageCircle size={17} />
                 Message Seller
-              </button>
+              </Link>
             )}
             <button
               className={`${styles.btnWish} ${isLiked(product.id) ? styles.btnWishActive : ''}`}

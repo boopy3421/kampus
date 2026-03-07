@@ -12,6 +12,8 @@ interface MockAccount {
   email: string
   name: string
   password: string
+  year?: '1st Year' | '2nd Year' | '3rd Year' | '4th Year'
+  course?: 'BSCS' | 'BSIT' | 'BMMA' | 'BSEMC' | 'ENTREP'
 }
 
 const getMockAccounts = (): MockAccount[] => {
@@ -54,6 +56,8 @@ export default function Profile() {
   const viewedAccount = accountById ?? accountByName
   const viewedName = viewedAccount?.name ?? (key === user.id ? user.name : key)
   const viewedEmail = viewedAccount?.email ?? (key === user.id ? user.email : undefined)
+  const viewedYear = viewedAccount?.year ?? (key === user.id ? user.year : undefined)
+  const viewedCourse = viewedAccount?.course ?? (key === user.id ? user.course : undefined)
   const isOwnProfile = viewedEmail ? viewedEmail === user.email : viewedName === user.name
   const userListings = listings.filter((l) => {
     if (viewedEmail && l.sellerId) {
@@ -76,6 +80,8 @@ export default function Profile() {
     name: viewedName,
     initials: getInitials(viewedName),
     email: viewedEmail,
+    year: viewedYear,
+    course: viewedCourse,
   }
 
   return (
@@ -111,6 +117,12 @@ export default function Profile() {
           </div>
           {profileData.email && (
             <p className={styles.email}>{profileData.email}</p>
+          )}
+          {(profileData.year || profileData.course) && (
+            <div className={styles.metaRow}>
+              {profileData.year && <span>{profileData.year}</span>}
+              {profileData.course && <span>{profileData.course}</span>}
+            </div>
           )}
         </div>
       </div>

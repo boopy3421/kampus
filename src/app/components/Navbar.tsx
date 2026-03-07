@@ -1,4 +1,4 @@
-import { Search, User, Plus } from 'lucide-react'
+import { Search, User, Plus, MessageCircle } from 'lucide-react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
@@ -65,6 +65,10 @@ export function Navbar({ onOpenModal }: NavbarProps) {
           </button>
           {isLoggedIn ? (
             <>
+              <button className={`${styles.btn} ${styles.btnGhost}`} onClick={() => navigate('/messages')}>
+                <MessageCircle size={15} />
+                Messages
+              </button>
               <button className={`${styles.btn} ${styles.btnGhost}`} onClick={() => navigate('/profile')}>
                 <User size={15} />
                 Profile
