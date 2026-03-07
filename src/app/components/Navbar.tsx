@@ -1,5 +1,6 @@
 import { Search, User, Plus } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import type { ModalPanel } from '@/hooks/useModal'
 import styles from './Navbar.module.css'
@@ -11,6 +12,24 @@ interface NavbarProps {
 export function Navbar({ onOpenModal }: NavbarProps) {
   const { isLoggedIn, logout } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const [searchValue, setSearchValue] = useState(searchParams.get('search') || '')
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchValue(value)
+
+    // Update URL with search parameter
+    const newParams = new URLSearchParams(searchParams)
+    if (value) {
+      newParams.set('search', value)
+    } else {
+      newParams.delete('search')
+    }
+
+    // Navigate to home with search params
+    navigate(`/?${newParams.toString()}`, { replace: true })
+  }
 
   return (
     <nav className={styles.nav}>
@@ -27,6 +46,8 @@ export function Navbar({ onOpenModal }: NavbarProps) {
             type="search"
             className={styles.searchInput}
             placeholder="Search listings — books, gadgets, uniforms…"
+            value={searchValue}
+            onChange={handleSearchChange}
           />
         </div>
 

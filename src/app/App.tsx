@@ -18,11 +18,21 @@ import { RequireAuth } from './components/RequireAuth'
 function Home() {
   const [searchParams, setSearchParams] = useSearchParams()
   const activeCategory = searchParams.get('category') || 'All'
+  const searchQuery = searchParams.get('search') || ''
 
-  const filteredProducts =
-    activeCategory === 'All'
-      ? PRODUCTS
-      : PRODUCTS.filter((p) => p.category === activeCategory)
+  let filteredProducts = PRODUCTS
+
+  // Filter by category
+  if (activeCategory !== 'All') {
+    filteredProducts = filteredProducts.filter((p) => p.category === activeCategory)
+  }
+
+  // Filter by search query
+  if (searchQuery) {
+    filteredProducts = filteredProducts.filter((p) =>
+      p.title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  }
 
   return (
     <>

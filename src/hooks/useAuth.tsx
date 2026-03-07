@@ -1,8 +1,15 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
 
+export interface User {
+  id: string
+  name: string
+  email: string
+}
+
 interface AuthContextType {
   isLoggedIn: boolean
-  login: () => void
+  user: User | null
+  login: (user: User) => void
   logout: () => void
 }
 
@@ -17,17 +24,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   })
 
-  const login = () => {
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const stored = localStorage.getItem('user')
+      return stored ? JSON.parse(stored) : null
+    } catch {
+      return null
+    }
+  })
+
+  const login = (newUser: User) => {
     setIsLoggedIn(true)
-    try { localStorage.setItem('isLoggedIn', 'true') } catch { }
+    setUser(newUser)
+    try {
+      localStorage.setItem('isLoggedIn', 'true')
+      localStorage.setItem('user', JSON.stringify(newUser))
+    } catch { }
   }
+
   const logout = () => {
     setIsLoggedIn(false)
-    try { localStorage.removeItem('isLoggedIn') } catch { }
+    setUser(null)
+    try {
+      localStorage.removeItem('isLoggedIn')
+      localStorage.removeItem('user')
+    } catch { }
   }
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

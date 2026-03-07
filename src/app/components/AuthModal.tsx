@@ -5,11 +5,40 @@ import { useAuth } from '@/hooks/useAuth'
 import type { ModalPanel } from '@/hooks/useModal'
 import styles from './AuthModal.module.css'
 
+interface MockAccount {
+  email: string
+  name: string
+}
+
 interface AuthModalProps {
   isOpen: boolean
   panel: ModalPanel
   onClose: () => void
   onSwitchPanel: (panel: ModalPanel) => void
+}
+
+// Mock accounts storage
+const getMockAccounts = (): MockAccount[] => {
+  try {
+    const stored = localStorage.getItem('mock_accounts')
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
+}
+
+const saveMockAccount = (account: MockAccount) => {
+  try {
+    const accounts = getMockAccounts()
+    if (!accounts.find(a => a.email === account.email)) {
+      accounts.push(account)
+      localStorage.setItem('mock_accounts', JSON.stringify(accounts))
+    }
+  } catch { }
+}
+
+const accountExists = (email: string): MockAccount | undefined => {
+  return getMockAccounts().find(a => a.email === email)
 }
 
 function EmailHint({ state }: { state: 'idle' | 'valid' | 'invalid' }) {
@@ -52,7 +81,16 @@ function SignInPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void;
       alert('Please enter a valid @ciit.edu.ph email address.')
       return
     }
-    login()
+    const account = accountExists(emailVal)
+    if (!account) {
+      alert('Account not found. Please sign up first.')
+      return
+    }
+    login({
+      id: emailVal,
+      name: account.name,
+      email: emailVal,
+    })
     onClose()
     alert('Welcome back! (Demo — backend coming soon.)')
   }
@@ -94,17 +132,28 @@ function SignInPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void;
 
 function SignUpPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void; onClose: () => void }) {
   const email = useEmailValidation()
+  const [nameVal, setNameVal] = useState('')
   const [emailVal, setEmailVal] = useState('')
-  const { login } = useAuth()
 
   const handleSubmit = () => {
+    if (!nameVal.trim()) {
+      alert('Please enter your full name.')
+      return
+    }
     if (!email.isCIITEmail(emailVal)) {
       alert('Only @ciit.edu.ph email addresses can register on Kampus.')
       return
     }
-    login()
-    onClose()
-    alert('Account created! (Demo — backend coming soon.)')
+    if (accountExists(emailVal)) {
+      alert('This email is already registered.')
+      return
+    }
+    saveMockAccount({
+      email: emailVal,
+      name: nameVal.trim(),
+    })
+    alert('Account created! Please sign in with your email.')
+    onSwitch('signin')
   }
 
   return (
@@ -115,7 +164,13 @@ function SignUpPanel({ onSwitch, onClose }: { onSwitch: (p: ModalPanel) => void;
 
       <div className={styles.formGroup}>
         <label>Full Name</label>
-        <input className={styles.input} type="text" placeholder="Juan dela Cruz" />
+        <input
+          className={styles.input}
+          type="text"
+          placeholder="Juan dela Cruz"
+          value={nameVal}
+          onChange={(e) => setNameVal(e.target.value)}
+        />
       </div>
 
       <div className={styles.formGroup}>

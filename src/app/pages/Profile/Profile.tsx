@@ -4,32 +4,47 @@ import { ArrowLeft, Package, Heart, Settings, Star, MapPin, Calendar } from 'luc
 import { PRODUCTS } from '@/data/products'
 import { ProductCard } from '@/app/components/ProductCard'
 import { useWishlist } from '@/hooks/useWishlist'
+import { useAuth } from '@/hooks/useAuth'
 import styles from './Profile.module.css'
 
 // In a real app: if the profile id matches the logged-in user, show "own" view
 const IS_OWN_PROFILE = true
 
-const MOCK_USER = {
-  name: 'Sarah Katipunan',
-  initials: 'SK',
-  email: 'sarah.k@ciit.edu.ph',
-  course: 'BS Information Technology',
-  year: '3rd Year',
-  joined: 'August 2023',
-  rating: 4.8,
-  reviews: 12,
-  activeListings: 4,
-  soldItems: 9,
+const getInitials = (name: string) => {
+  return name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
 }
 
 type Tab = 'listings' | 'saved'
 
 export default function Profile() {
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<Tab>('listings')
   const { toggle, isLiked } = useWishlist()
 
   const userListings = PRODUCTS.slice(0, 4)
   const savedListings = PRODUCTS.slice(4, 8)
+
+  if (!user) {
+    return <div className={styles.page}>Not logged in</div>
+  }
+
+  const profileData = {
+    name: user.name,
+    initials: getInitials(user.name),
+    email: user.email,
+    course: 'BS Information Technology',
+    year: '3rd Year',
+    joined: 'August 2023',
+    rating: 4.8,
+    reviews: 12,
+    activeListings: 4,
+    soldItems: 9,
+  }
 
   return (
     <div className={styles.page}>
@@ -51,7 +66,7 @@ export default function Profile() {
       {/* Profile header */}
       <div className={styles.header}>
         <div className={styles.avatarWrap}>
-          <div className={styles.avatar}>{MOCK_USER.initials}</div>
+          <div className={styles.avatar}>{profileData.initials}</div>
           {IS_OWN_PROFILE && (
             <button className={styles.editAvatarBtn}>Edit</button>
           )}
@@ -59,37 +74,37 @@ export default function Profile() {
 
         <div className={styles.info}>
           <div className={styles.nameRow}>
-            <h1 className={styles.name}>{MOCK_USER.name}</h1>
+            <h1 className={styles.name}>{profileData.name}</h1>
             <div className={styles.ratingBadge}>
               <Star size={13} fill="currentColor" />
-              {MOCK_USER.rating}
-              <span>({MOCK_USER.reviews} reviews)</span>
+              {profileData.rating}
+              <span>({profileData.reviews} reviews)</span>
             </div>
           </div>
 
           <div className={styles.metaRow}>
-            <span><MapPin size={13} /> {MOCK_USER.course} · {MOCK_USER.year}</span>
-            <span><Calendar size={13} /> Joined {MOCK_USER.joined}</span>
+            <span><MapPin size={13} /> {profileData.course} · {profileData.year}</span>
+            <span><Calendar size={13} /> Joined {profileData.joined}</span>
           </div>
 
           {IS_OWN_PROFILE && (
-            <p className={styles.email}>{MOCK_USER.email}</p>
+            <p className={styles.email}>{profileData.email}</p>
           )}
         </div>
 
         <div className={styles.stats}>
           <div className={styles.statItem}>
-            <span className={styles.statNum}>{MOCK_USER.activeListings}</span>
+            <span className={styles.statNum}>{profileData.activeListings}</span>
             <span className={styles.statLabel}>Active</span>
           </div>
           <div className={styles.statDivider} />
           <div className={styles.statItem}>
-            <span className={styles.statNum}>{MOCK_USER.soldItems}</span>
+            <span className={styles.statNum}>{profileData.soldItems}</span>
             <span className={styles.statLabel}>Sold</span>
           </div>
           <div className={styles.statDivider} />
           <div className={styles.statItem}>
-            <span className={styles.statNum}>{MOCK_USER.rating}</span>
+            <span className={styles.statNum}>{profileData.rating}</span>
             <span className={styles.statLabel}>Rating</span>
           </div>
         </div>
