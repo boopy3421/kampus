@@ -1,6 +1,6 @@
 @font-face {
-  font-family: 'Roca_Two';
-  src: url('./fonts/Roca_Two.woff2') format('woff2');
+  font-family: "Roca_Two";
+  src: url("./fonts/Roca_Two.woff2") format("woff2");
   font-weight: 800;
   font-display: swap;
 }
@@ -20,23 +20,49 @@
   --gray-100: #f0f2f8;
   --gray-200: #dde2f0;
   --gray-400: #8892b0;
+  --gray-500: #6b7a99;
   --gray-600: #4a5568;
   --text-dark: #0d1b3e;
+  --text-muted: #6b7a99;
+  --card-bg: #ffffff;
+  --page-bg: var(--off-white);
+  --input-bg: var(--gray-100);
+  --border-color: var(--gray-200);
   --success: #10b981;
   --danger: #ef4444;
-
   /* Shape */
   --radius: 14px;
   --radius-sm: 8px;
   --radius-pill: 100px;
-
   /* Shadows */
-  --shadow: 0 4px 24px rgba(26, 47, 110, 0.10);
+  --shadow: 0 4px 24px rgba(26, 47, 110, 0.1);
   --shadow-lg: 0 12px 40px rgba(26, 47, 110, 0.16);
-
   /* Typography */
-  --font-display: 'Roca_Two', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
+  --font-display: "Roca_Two", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+}
+
+/* ─── DARK MODE TOKENS ───────────────────────────────────── */
+html.dark {
+  --page-bg: #0d1117;
+  --card-bg: #161b27;
+  --navy: #4a7fd4;
+  --navy-dark: #3b6cc7;
+  --navy-light: #5a8fe0;
+  --blue-light: #1a2540;
+  --off-white: #0d1117;
+  --gray-100: #1c2333;
+  --gray-200: #2a3448;
+  --gray-400: #8896b0;
+  --gray-500: #9aa3b8;
+  --gray-600: #b0bcd4;
+  --text-dark: #e8edf8;
+  --text-muted: #8896b0;
+  --input-bg: #1c2333;
+  --border-color: #2a3448;
+  --white: #161b27;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
 
 /* ─── BASE RESET ─────────────────────────────────────────── */
@@ -54,11 +80,14 @@ html {
 
 body {
   font-family: var(--font-body);
-  background: var(--off-white);
+  background: var(--page-bg);
   color: var(--text-dark);
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease;
 }
 
 a {
@@ -84,7 +113,6 @@ textarea {
     opacity: 0;
     transform: translateY(16px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -95,7 +123,6 @@ textarea {
   from {
     opacity: 0;
   }
-
   to {
     opacity: 1;
   }
@@ -103,4 +130,166 @@ textarea {
 
 .animate-fade-up {
   animation: fadeUp 0.4s ease both;
+}
+
+/* ─── DARK MODE: component overrides ────────────────────── */
+
+/* Cards, modals, panels */
+html.dark .shell,
+html.dark .sidebar,
+html.dark .modal,
+html.dark .topUpModal,
+html.dark .itemCard,
+html.dark .composer,
+html.dark [class*="walletCard"],
+html.dark [class*="topUpModal"],
+html.dark [class*="modal"] {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-dark);
+}
+
+/* Message bubbles from seller (white bg) */
+html.dark .messageSeller .messageBubble {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-dark);
+}
+
+/* Message area background */
+html.dark .messagesArea {
+  background: linear-gradient(180deg, #0f1520 0%, #0d1117 100%);
+}
+
+/* Item card background inside messages */
+html.dark .itemCardWrap {
+  background: #111827;
+}
+
+html.dark .itemCard {
+  background: var(--card-bg);
+}
+
+/* Composer input */
+html.dark .composer {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+html.dark .composer input {
+  background: var(--input-bg);
+  border-color: var(--border-color);
+  color: var(--text-dark);
+}
+
+html.dark .composer input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Thread buttons */
+html.dark .threadButton:hover {
+  background: var(--gray-100);
+}
+
+html.dark .threadButtonActive {
+  background: #1a2540;
+  border-color: rgba(74, 127, 212, 0.35);
+}
+
+/* Inputs & textareas globally in dark */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background: var(--input-bg);
+  border-color: var(--border-color);
+  color: var(--text-dark);
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* Section titles & view-all links (dashboard) */
+html.dark [class*="sectionTitle"],
+html.dark [class*="viewAll"],
+html.dark [class*="recentTitle"] {
+  color: var(--text-dark);
+}
+
+/* Profile page tab buttons */
+html.dark [class*="tab"] {
+  color: var(--text-dark);
+}
+
+/* Profile: back btn, settings btn */
+html.dark [class*="backBtn"],
+html.dark [class*="settingsBtn"] {
+  color: var(--gray-400);
+}
+
+/* Profile header texts (name, email, stats, meta) */
+html.dark [class*="name"],
+html.dark [class*="email"],
+html.dark [class*="profileStat"],
+html.dark [class*="metaRow"] span,
+html.dark [class*="walletLabel"],
+html.dark [class*="walletAmount"] {
+  color: var(--text-dark);
+}
+
+/* Listing banner "Got something to sell?" */
+html.dark [class*="newListingBanner"] p {
+  color: var(--text-dark);
+}
+
+/* Modal headers and labels */
+html.dark [class*="topUpHeader"] h3,
+html.dark [class*="topUpField"],
+html.dark [class*="modalHeader"] h3,
+html.dark [class*="modalLabel"] {
+  color: var(--text-dark);
+}
+
+/* Cancel buttons in modals */
+html.dark [class*="cancelBtn"] {
+  background: var(--gray-100);
+  border-color: var(--border-color);
+  color: var(--text-dark);
+}
+
+/* Offer receipt inside chat bubbles */
+html.dark .offerReceipt {
+  background: rgba(22, 27, 39, 0.9);
+  border-color: var(--border-color);
+}
+
+/* Summary boxes in modals */
+html.dark .summaryBox {
+  background: var(--input-bg);
+  border-color: var(--border-color);
+}
+
+/* Settings dropdown */
+html.dark [class*="settingsDropdown"],
+html.dark [data-settings-dropdown] {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+/* Landing "Start browsing" card input text */
+html.dark input[aria-label="CIIT email"] {
+  background: var(--input-bg, #1c2333);
+  color: var(--text-dark, #e8edf8);
+  border-color: var(--border-color, #2a3448);
+}
+
+html.dark input[aria-label="CIIT email"]::placeholder {
+  color: var(--text-muted, #8896b0);
+}
+
+/* Landing card itself */
+html.dark .landingCard {
+  background: var(--card-bg, #161b27);
+  color: var(--text-dark, #e8edf8);
 }

@@ -18,17 +18,23 @@
 }
 
 .modal {
-  background: white;
+  background: var(--card-bg, #fff);
   border-radius: 20px;
   width: 100%;
   max-width: 420px;
   padding: 40px;
   position: relative;
   transform: translateY(20px);
-  transition: transform 0.25s;
+  transition:
+    transform 0.25s,
+    background 0.25s;
   box-shadow: 0 24px 80px rgba(10, 20, 50, 0.25);
+  max-height: 90vh;
+  overflow-y: auto;
 }
-.overlay.open .modal { transform: translateY(0); }
+.overlay.open .modal {
+  transform: translateY(0);
+}
 
 .closeBtn {
   position: absolute;
@@ -49,7 +55,6 @@
   color: var(--text-dark);
 }
 
-/* ─── PANEL COMMON ────────────────────────────────────────── */
 .panelLogo {
   font-family: var(--font-display);
   font-size: 1.5rem;
@@ -57,11 +62,13 @@
   color: var(--navy);
   margin-bottom: 4px;
 }
-.panelLogo span { color: var(--gold); }
+.panelLogo span {
+  color: var(--gold);
+}
 
 .panelSub {
   font-size: 0.85rem;
-  color: var(--gray-400);
+  color: var(--text-muted, var(--gray-400));
   margin-bottom: 20px;
   line-height: 1.5;
 }
@@ -70,11 +77,13 @@
   font-family: var(--font-display);
   font-size: 1.4rem;
   font-weight: 700;
+  color: var(--text-dark);
   margin-bottom: 20px;
 }
 
-/* ─── FORM ────────────────────────────────────────────────── */
-.formGroup { margin-bottom: 16px; }
+.formGroup {
+  margin-bottom: 16px;
+}
 
 .formGroup label {
   display: block;
@@ -87,37 +96,113 @@
 .input {
   width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid var(--gray-200);
+  border: 1.5px solid var(--border-color, var(--gray-200));
   border-radius: var(--radius-sm);
   font-size: 0.925rem;
-  background: var(--gray-100);
+  background: var(--input-bg, var(--gray-100));
   color: var(--text-dark);
   outline: none;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    color 0.2s;
+}
+.input::placeholder {
+  color: var(--text-muted, var(--gray-400));
 }
 .input:focus {
   border-color: var(--navy);
-  background: white;
+  background: var(--card-bg, #fff);
 }
-.inputError { border-color: var(--danger); }
+.inputError {
+  border-color: var(--danger);
+}
+.input option {
+  background: var(--card-bg, #fff);
+  color: var(--text-dark);
+}
 
+/* â”€â”€ Username field â”€â”€ */
+.usernameWrapper {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--border-color, var(--gray-200));
+  border-radius: var(--radius-sm);
+  background: var(--input-bg, var(--gray-100));
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.usernameWrapper:focus-within {
+  border-color: var(--navy);
+  background: var(--card-bg, #fff);
+}
+.usernameAt {
+  padding: 0 4px 0 14px;
+  font-size: 0.925rem;
+  font-weight: 600;
+  color: var(--text-muted, var(--gray-400));
+  user-select: none;
+  flex-shrink: 0;
+}
+.usernameInput {
+  border: none !important;
+  background: transparent !important;
+  padding-left: 2px;
+  border-radius: 0;
+  flex: 1;
+}
+.usernameInput:focus {
+  background: transparent !important;
+}
+
+/* â”€â”€ Password â”€â”€ */
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.passwordWrapper .input {
+  padding-right: 44px;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  color: var(--text-muted, var(--gray-400));
+  transition: color 0.2s;
+}
+.passwordToggle:hover {
+  color: var(--navy);
+}
+
+/* â”€â”€ Hints â”€â”€ */
 .hint {
   display: flex;
   align-items: center;
   gap: 5px;
   font-size: 0.78rem;
-  color: var(--gray-400);
+  color: var(--text-muted, var(--gray-400));
   margin-top: 6px;
 }
-.hintValid  { color: var(--success); }
-.hintInvalid { color: var(--danger); }
+.hintValid {
+  color: var(--success);
+}
+.hintInvalid {
+  color: var(--danger);
+}
 
 .submitBtn {
   width: 100%;
   padding: 13px;
   border-radius: var(--radius-sm);
   background: var(--navy);
-  color: white;
+  color: #fff;
   font-family: var(--font-display);
   font-size: 0.95rem;
   font-weight: 700;
@@ -136,36 +221,37 @@
   align-items: center;
   gap: 12px;
   margin: 20px 0;
-  color: var(--gray-400);
+  color: var(--text-muted, var(--gray-400));
   font-size: 0.8rem;
 }
 .divider::before,
 .divider::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 1px;
-  background: var(--gray-200);
+  background: var(--border-color, var(--gray-200));
 }
 
 .switchText {
   text-align: center;
   font-size: 0.85rem;
-  color: var(--gray-400);
+  color: var(--text-muted, var(--gray-400));
 }
 .switchText a {
   color: var(--navy);
   font-weight: 600;
   cursor: pointer;
 }
-.switchText a:hover { text-decoration: underline; }
+.switchText a:hover {
+  text-decoration: underline;
+}
 
-/* ─── CIIT NOTE ───────────────────────────────────────────── */
 .ciitNote {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  background: var(--gold-light);
-  border: 1px solid var(--blue-mid);
+  background: var(--blue-light);
+  border: 1px solid var(--border-color, var(--blue-mid));
   border-radius: var(--radius-sm);
   padding: 10px 14px;
   font-size: 0.8rem;
@@ -173,11 +259,10 @@
   margin-top: 16px;
 }
 
-/* ─── SELL GATE ───────────────────────────────────────────── */
 .sellGate {
   text-align: center;
   padding: 24px 0;
-  color: var(--gray-400);
+  color: var(--text-muted, var(--gray-400));
   font-size: 0.9rem;
 }
 .sellGate a {
@@ -187,8 +272,12 @@
   font-weight: 600;
   cursor: pointer;
 }
-.sellGate a:hover { text-decoration: underline; }
+.sellGate a:hover {
+  text-decoration: underline;
+}
 
 @media (max-width: 480px) {
-  .modal { padding: 28px 24px; }
+  .modal {
+    padding: 28px 24px;
+  }
 }

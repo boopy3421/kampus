@@ -1,69 +1,77 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, ReactNode } from "react";
 
 export interface User {
-  id: string
-  name: string
-  email: string
-  year?: '1st Year' | '2nd Year' | '3rd Year' | '4th Year'
-  course?: 'BMMA - Animation' | 'BMMA - Graphic Design' | 'BMMA - Film' | 'BS - Entrep' | 'BSEMC' | 'BSCS' | 'BSIT'
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  year?: "1st Year" | "2nd Year" | "3rd Year" | "4th Year";
+  course?:
+    | "BMMA - Animation"
+    | "BMMA - Graphic Design"
+    | "BMMA - Film"
+    | "BS in Entrepreneurship"
+    | "BS in Entertainment and Multimedia Computing"
+    | "BS in Computer Science"
+    | "BS in Information Systems";
 }
 
 interface AuthContextType {
-  isLoggedIn: boolean
-  user: User | null
-  login: (user: User) => void
-  logout: () => void
+  isLoggedIn: boolean;
+  user: User | null;
+  login: (user: User) => void;
+  logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     try {
-      return localStorage.getItem('isLoggedIn') === 'true'
+      return localStorage.getItem("isLoggedIn") === "true";
     } catch {
-      return false
+      return false;
     }
-  })
+  });
 
   const [user, setUser] = useState<User | null>(() => {
     try {
-      const stored = localStorage.getItem('user')
-      return stored ? JSON.parse(stored) : null
+      const stored = localStorage.getItem("user");
+      return stored ? JSON.parse(stored) : null;
     } catch {
-      return null
+      return null;
     }
-  })
+  });
 
   const login = (newUser: User) => {
-    setIsLoggedIn(true)
-    setUser(newUser)
+    setIsLoggedIn(true);
+    setUser(newUser);
     try {
-      localStorage.setItem('isLoggedIn', 'true')
-      localStorage.setItem('user', JSON.stringify(newUser))
-    } catch { }
-  }
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("user", JSON.stringify(newUser));
+    } catch {}
+  };
 
   const logout = () => {
-    setIsLoggedIn(false)
-    setUser(null)
+    setIsLoggedIn(false);
+    setUser(null);
     try {
-      localStorage.removeItem('isLoggedIn')
-      localStorage.removeItem('user')
-    } catch { }
-  }
+      localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("user");
+    } catch {}
+  };
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext)
+  const ctx = useContext(AuthContext);
   if (!ctx) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return ctx
+  return ctx;
 }

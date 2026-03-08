@@ -27,7 +27,9 @@
   text-decoration: none;
 }
 
-.logoDot { color: var(--gold); }
+.logoDot {
+  color: var(--gold);
+}
 
 .badge {
   font-size: 0.625rem;
@@ -66,7 +68,9 @@
   background: var(--gray-100);
   color: var(--text-dark);
   outline: none;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
 }
 
 .searchInput:focus {
@@ -114,5 +118,7 @@
 }
 
 @media (max-width: 640px) {
-  .btnSell { display: none; }
+  .btnSell {
+    display: none;
+  }
 }
