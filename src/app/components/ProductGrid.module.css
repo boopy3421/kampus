@@ -25,7 +25,10 @@
   opacity: 0.8;
   transition: opacity 0.15s;
 }
-.viewAll:hover { opacity: 1; text-decoration: underline; }
+.viewAll:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
 
 .grid {
   display: grid;

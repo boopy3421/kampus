@@ -1,35 +1,39 @@
-import { Search, User, Plus, MessageCircle } from 'lucide-react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { useState } from 'react'
-import { useAuth } from '@/hooks/useAuth'
-import type { ModalPanel } from '@/hooks/useModal'
-import styles from './Navbar.module.css'
+import { Search, User, Plus, MessageCircle } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import type { ModalPanel } from "@/hooks/useModal";
+import styles from "./Navbar.module.css";
 
 interface NavbarProps {
-  onOpenModal: (panel: ModalPanel) => void
+  onOpenModal: (panel: ModalPanel) => void;
 }
 
 export function Navbar({ onOpenModal }: NavbarProps) {
-  const { isLoggedIn, logout } = useAuth()
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const [searchValue, setSearchValue] = useState(searchParams.get('search') || '')
+  const { isLoggedIn, logout } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [searchValue, setSearchValue] = useState(
+    searchParams.get("search") || "",
+  );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setSearchValue(value)
+    const value = e.target.value;
+    setSearchValue(value);
 
     // Update URL with search parameter
-    const newParams = new URLSearchParams(searchParams)
+    const newParams = new URLSearchParams(searchParams);
     if (value) {
-      newParams.set('search', value)
+      newParams.set("search", value);
+      // Clear category when searching to show results from all categories
+      newParams.delete("category");
     } else {
-      newParams.delete('search')
+      newParams.delete("search");
     }
 
     // Navigate to home with search params
-    navigate(`/?${newParams.toString()}`, { replace: true })
-  }
+    navigate(`/?${newParams.toString()}`, { replace: true });
+  };
 
   return (
     <nav className={styles.nav}>
@@ -56,8 +60,8 @@ export function Navbar({ onOpenModal }: NavbarProps) {
           <button
             className={`${styles.btn} ${styles.btnSell}`}
             onClick={() => {
-              if (isLoggedIn) navigate('/create-listing')
-              else onOpenModal('sell')
+              if (isLoggedIn) navigate("/create-listing");
+              else onOpenModal("sell");
             }}
           >
             <Plus size={15} />
@@ -65,20 +69,35 @@ export function Navbar({ onOpenModal }: NavbarProps) {
           </button>
           {isLoggedIn ? (
             <>
-              <button className={`${styles.btn} ${styles.btnGhost}`} onClick={() => navigate('/messages')}>
+              <button
+                className={`${styles.btn} ${styles.btnGhost}`}
+                onClick={() => navigate("/messages")}
+              >
                 <MessageCircle size={15} />
                 Messages
               </button>
-              <button className={`${styles.btn} ${styles.btnGhost}`} onClick={() => navigate('/profile')}>
+              <button
+                className={`${styles.btn} ${styles.btnGhost}`}
+                onClick={() => navigate("/profile")}
+              >
                 <User size={15} />
                 Profile
               </button>
-              <button className={`${styles.btn} ${styles.btnGhost}`} onClick={() => { navigate('/'); setTimeout(logout, 0); }}>
+              <button
+                className={`${styles.btn} ${styles.btnGhost}`}
+                onClick={() => {
+                  navigate("/");
+                  setTimeout(logout, 0);
+                }}
+              >
                 Sign Out
               </button>
             </>
           ) : (
-            <button className={`${styles.btn} ${styles.btnGhost}`} onClick={() => onOpenModal('signin')}>
+            <button
+              className={`${styles.btn} ${styles.btnGhost}`}
+              onClick={() => onOpenModal("signin")}
+            >
               <User size={15} />
               Sign In
             </button>
@@ -86,5 +105,5 @@ export function Navbar({ onOpenModal }: NavbarProps) {
         </div>
       </div>
     </nav>
-  )
+  );
 }

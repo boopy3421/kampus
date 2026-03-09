@@ -6,9 +6,17 @@
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);
-  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
   cursor: pointer;
   animation: fadeUp 0.4s ease both;
+}
+
+:global(.dark) .card {
+  background: var(--gray-800, #1f2937);
+  color: var(--gray-100, #f3f4f6);
 }
 
 .boosted {
@@ -107,6 +115,19 @@
   fill: #ef4444;
 }
 
+.boostIndicator {
+  position: absolute;
+  top: 12px;
+  right: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.12);
+}
+
 /* ─── BODY ────────────────────────────────────────────────── */
 .body {
   padding: 14px 16px 16px;
@@ -147,17 +168,24 @@
   margin-bottom: 10px;
 }
 
+.seller span {
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+.sellerUsername {
+  font-size: 0.7rem;
+  color: var(--gray-400);
+  font-weight: 400;
+  margin-left: 2px;
+}
+
 .boostMeta {
   font-size: 0.74rem;
   color: #15803d;
   font-weight: 600;
   margin-top: -4px;
   margin-bottom: 10px;
-}
-
-.seller span {
-  color: var(--gray-600);
-  font-weight: 500;
 }
 
 .footer {
