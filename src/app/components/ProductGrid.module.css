@@ -18,16 +18,9 @@
   color: var(--text-dark);
 }
 
-.viewAll {
-  font-size: 0.85rem;
-  color: var(--navy);
-  font-weight: 500;
-  opacity: 0.8;
-  transition: opacity 0.15s;
-}
-.viewAll:hover {
-  opacity: 1;
-  text-decoration: underline;
+.headerRight {
+  display: flex;
+  align-items: center;
 }
 
 .grid {
