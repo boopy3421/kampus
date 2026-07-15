@@ -23,6 +23,10 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ListingsProvider, useListings } from "./hooks/useListings";
 import { RequireAuth } from "./components/RequireAuth";
 import type { ModalPanel } from "@/hooks/useModal";
+import { sortProducts } from "@/lib/sort";
+import type { SortKey } from "@/lib/sort";
+import { seedDemoBoosts } from "@/lib/seedBoosts";
+import { BoostedSection } from "./components/BoostedSection";
 
 // ── Home page ─────────────────────────────────────────────
 
@@ -38,6 +42,7 @@ function Home({
   const searchQuery = searchParams.get("search") || "";
   const { isLoggedIn } = useAuth();
   const [landingEmail, setLandingEmail] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("date-newest");
 
   const handleContinue = () => {
     const email = landingEmail.trim();
@@ -87,29 +92,12 @@ function Home({
     }
   }
 
-  try {
-    const raw = localStorage.getItem("kampus_listing_boosts");
-    const boosts = raw
-      ? (JSON.parse(raw) as Record<string, { expiresAt: number }>)
-      : {};
-    const now = Date.now();
-    allProducts.sort((a, b) => {
-      const aBoost =
-        boosts[String(a.id)] && boosts[String(a.id)].expiresAt > now
-          ? boosts[String(a.id)].expiresAt
-          : 0;
-      const bBoost =
-        boosts[String(b.id)] && boosts[String(b.id)].expiresAt > now
-          ? boosts[String(b.id)].expiresAt
-          : 0;
-      if (aBoost && bBoost) return bBoost - aBoost;
-      if (aBoost) return -1;
-      if (bBoost) return 1;
-      return Number(b.id) - Number(a.id);
-    });
-  } catch {
-    // ignore
-  }
+  // Boosted items no longer get pinned here — the dedicated Boosted
+  // Listings section already covers that. BoostedSection ranks its own
+  // items via the heap in splitByBoost, so it must receive the
+  // unsorted `allProducts`, not a sortKey-dependent copy — otherwise
+  // the Recent Listings sort leaks into Boosted Listings' order.
+  const sortedProducts = sortProducts(allProducts, sortKey);
 
   // ── Logged-out: Hero + email gate ──
   if (!isLoggedIn) {
@@ -197,7 +185,12 @@ function Home({
     <>
       <Hero />
       <CategoryBar active={activeCategory} onSelect={handleCategorySelect} />
-      <ProductGrid products={allProducts} />
+      <BoostedSection products={allProducts} />
+      <ProductGrid
+        products={sortedProducts}
+        sortKey={sortKey}
+        onSortChange={setSortKey}
+      />
     </>
   );
 }
@@ -288,6 +281,8 @@ export default function App() {
       if (enabled) document.documentElement.classList.add("dark");
       else document.documentElement.classList.remove("dark");
     } catch {}
+
+    seedDemoBoosts();
   }, []);
 
   return (

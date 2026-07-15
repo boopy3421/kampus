@@ -1,21 +1,35 @@
-import type { Product } from '@/data/products'
-import { Link } from 'react-router-dom'
-import { ProductCard } from './ProductCard'
-import { useWishlist } from '@/hooks/useWishlist'
-import styles from './ProductGrid.module.css'
+import type { Product } from "@/data/products";
+import { ProductCard } from "./ProductCard";
+import { useWishlist } from "@/hooks/useWishlist";
+import type { SortKey } from "@/lib/sort";
+import { SortDropdown } from "./SortDropdown";
+import styles from "./ProductGrid.module.css";
 
 interface ProductGridProps {
-  products: Product[]
+  products: Product[];
+  title?: string;
+  sortKey?: SortKey;
+  onSortChange?: (key: SortKey) => void;
 }
 
-export function ProductGrid({ products }: ProductGridProps) {
-  const { toggle, isLiked } = useWishlist()
+export function ProductGrid({
+  products,
+  title = "Recent Listings",
+  sortKey,
+  onSortChange,
+}: ProductGridProps) {
+  const { toggle, isLiked } = useWishlist();
 
   return (
     <section className={styles.section}>
       <div className={styles.header}>
-        <h2 className={styles.title}>Recent Listings</h2>
-        <Link to="/" className={styles.viewAll}>View all →</Link>
+        <h2 className={styles.title}>{title}</h2>
+
+        <div className={styles.headerRight}>
+          {onSortChange && sortKey && (
+            <SortDropdown value={sortKey} onChange={onSortChange} />
+          )}
+        </div>
       </div>
 
       <div className={styles.grid}>
@@ -36,5 +50,5 @@ export function ProductGrid({ products }: ProductGridProps) {
         </div>
       )}
     </section>
-  )
+  );
 }
