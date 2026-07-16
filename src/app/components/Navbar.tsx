@@ -1,8 +1,12 @@
 import { Search, User, Plus, MessageCircle } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import type { ModalPanel } from "@/hooks/useModal";
+import { PRODUCTS } from "@/data/products";
+import { buildTitleTrie } from "@/lib/trie";
+import { fuzzyMatch } from "@/lib/editDistance";
+import { SearchSuggestions } from "./SearchSuggestions";
 import styles from "./Navbar.module.css";
 
 interface NavbarProps {
@@ -16,9 +20,26 @@ export function Navbar({ onOpenModal }: NavbarProps) {
   const [searchValue, setSearchValue] = useState(
     searchParams.get("search") || "",
   );
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const titleTrie = useMemo(
+    () => buildTitleTrie(PRODUCTS.map((p) => p.title)),
+    [],
+  );
+
+  const suggestions = (() => {
+    if (!isSearchFocused || !searchValue) return [];
+
+    const exact = titleTrie.search(searchValue);
+    if (exact.length > 0) return exact;
+
+    return fuzzyMatch(
+      searchValue,
+      PRODUCTS.map((p) => p.title),
+    );
+  })();
+
+  const commitSearch = (value: string) => {
     setSearchValue(value);
 
     // Update URL with search parameter
@@ -33,6 +54,10 @@ export function Navbar({ onOpenModal }: NavbarProps) {
 
     // Navigate to home with search params
     navigate(`/?${newParams.toString()}`, { replace: true });
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    commitSearch(e.target.value);
   };
 
   return (
@@ -52,6 +77,15 @@ export function Navbar({ onOpenModal }: NavbarProps) {
             placeholder="Search listings — books, gadgets, uniforms…"
             value={searchValue}
             onChange={handleSearchChange}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
+          />
+          <SearchSuggestions
+            suggestions={suggestions}
+            onSelect={(title) => {
+              commitSearch(title);
+              setIsSearchFocused(false);
+            }}
           />
         </div>
 

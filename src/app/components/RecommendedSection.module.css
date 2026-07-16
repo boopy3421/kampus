@@ -1,0 +1,75 @@
+.section {
+  max-width: 1400px;
+  margin: auto;
+  padding: 24px clamp(16px, 4vw, 48px) 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.infoWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: var(--gray-400);
+  cursor: help;
+}
+
+.infoWrap:hover,
+.infoWrap:focus-visible {
+  color: var(--navy);
+  outline: none;
+}
+
+.tooltip {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: max-content;
+  max-width: 300px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--navy);
+  color: white;
+  font-size: 0.84rem;
+  font-weight: 400;
+  line-height: 1.5;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: all 0.15s;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+.tooltipHeading {
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.infoWrap:hover .tooltip,
+.infoWrap:focus-visible .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 20px;
+}

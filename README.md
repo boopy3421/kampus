@@ -28,8 +28,10 @@ src/
 ├── lib/
 │   ├── sort.ts                  # Merge sort — powers Recent Listings price/date sort
 │   ├── trie.ts                  # Trie — powers navbar search suggestions
+│   ├── editDistance.ts          # Edit distance (DP) — fuzzy fallback when trie search misses
 │   ├── heap.ts                  # Max-heap priority queue — ranks Boosted Listings
 │   ├── boosts.ts                # Boost read/partition/ranking logic (uses heap.ts)
+│   ├── recommend.ts             # Weighted similarity scoring — powers Recommended Listings
 │   └── seedBoosts.ts            # Seeds demo boost data into localStorage
 │
 └── app/
@@ -41,6 +43,7 @@ src/
         ├── SortDropdown.tsx / .module.css        # Price sort control for Recent Listings
         ├── SearchSuggestions.tsx / .module.css   # Trie-backed live search suggestions dropdown
         ├── BoostedSection.tsx / .module.css      # Boosted Listings row, ranked via heap.ts
+        ├── RecommendedSection.tsx / .module.css  # Recommended Listings row (based on saved items)
         ├── ProductGrid.tsx / .module.css         # Grid section header + card layout
         ├── ProductCard.tsx / .module.css         # Individual listing card
         ├── AuthModal.tsx / .module.css           # Sign In / Sign Up / Sell modal
