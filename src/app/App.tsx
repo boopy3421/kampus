@@ -27,6 +27,7 @@ import { sortProducts } from "@/lib/sort";
 import type { SortKey } from "@/lib/sort";
 import { seedDemoBoosts } from "@/lib/seedBoosts";
 import { BoostedSection } from "./components/BoostedSection";
+import { RecommendedSection } from "./components/RecommendedSection";
 
 // ── Home page ─────────────────────────────────────────────
 
@@ -66,12 +67,15 @@ function Home({
   }, [searchParams]);
 
   const handleCategorySelect = (label: string) => {
-    setActiveCategory(label);
+    const isDeselecting = label === activeCategory && label !== "All";
+    const nextCategory = isDeselecting ? "All" : label;
+
+    setActiveCategory(nextCategory);
     const next = new URLSearchParams(searchParams);
-    if (label === "All") {
+    if (nextCategory === "All") {
       next.delete("category");
     } else {
-      next.set("category", label);
+      next.set("category", nextCategory);
     }
     setSearchParams(next);
   };
@@ -186,6 +190,7 @@ function Home({
       <Hero />
       <CategoryBar active={activeCategory} onSelect={handleCategorySelect} />
       <BoostedSection products={allProducts} />
+      <RecommendedSection products={allProducts} />
       <ProductGrid
         products={sortedProducts}
         sortKey={sortKey}
